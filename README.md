@@ -36,3 +36,12 @@ To download. click the DOWNLOADS button in the top right corner, rename the unco
 
 Place the Ubidots_fona library folder your *arduinosketchfolder*/libraries/ folder. 
 You may need to create the libraries subfolder if its your first library. Restart the IDE.
+
+## Install the Library
+
+1. Download the library as a ZIP file
+2. Open the Arduino IDE and go to "Sketch" --> "Import Library" --> "Add Library".
+3. Select the downloaded ZIP file
+4. Restart the Arduino IDE, you should then see Ubidots_fona examples under "File" --> "Examples" --> "Ubidots_fona"
+
+
