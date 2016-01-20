@@ -3,6 +3,7 @@
 #define USER ""
 #define PASS ""
 
+// Create a Ubidots client with your Ubidots TOKEN as an argument:
 Ubidots client("CCN8FrVulRYGulPTk234R9Myx8qN2o");
   
 void setup() {
