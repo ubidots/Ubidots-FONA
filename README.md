@@ -30,18 +30,11 @@ These modules use TTL Serial to communicate, 2 pins are required to interface
 * FONA_PS –> Pin 8
 
 
-Written by Mateo Velez - Metavix for Adafruit Industries. Based on Adafruit_FONA library  
+Written by Mateo Velez - Metavix for Ubidots Inc. Based on Adafruit_FONA library  
 
 To download. click the DOWNLOADS button in the top right corner, rename the uncompressed folder Ubidots_fona Check that the Ubidots_fona folder contains Ubidots_fona.cpp and Ubidots_fona.h
 
 Place the Ubidots_fona library folder your *arduinosketchfolder*/libraries/ folder. 
 You may need to create the libraries subfolder if its your first library. Restart the IDE.
-
-## Install the Library
-
-1. Download the library as a ZIP file
-2. Open the Arduino IDE and go to "Sketch" --> "Import Library" --> "Add Library".
-3. Select the downloaded ZIP file
-4. Restart the Arduino IDE, you should then see Ubidots_fona examples under "File" --> "Examples" --> "Ubidots_fona"
 
 
