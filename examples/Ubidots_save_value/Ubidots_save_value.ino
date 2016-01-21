@@ -1,9 +1,9 @@
 #include <Ubidots_fona.h>
 #define APN "Your_apn_of_your_SIM_here" 
-#define USER ""  // If your apn doesnt have username just put ""
-#define PASS ""  // If your apn doesnt have password just put ""
-#define TOKEN "CCN8GrVulRYGulPTk234R9Myx8qN2o"  // Remplace it with your token
-#define ID "2345rVulRYGulPTk234R9Myx8qN2o" // Remplace it with your variable ID
+#define USER "Your_username_here"  // if your apn doesnt have username just put ""
+#define PASS "Your_password_here"  // if your apn doesnt have password just put ""
+#define TOKEN "Your_token_here"  // Remplace it with your token
+#define ID "Your_id_here" // Remplace it with your variable ID
 
 Ubidots client(TOKEN);  
   
