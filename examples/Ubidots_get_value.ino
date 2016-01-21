@@ -17,8 +17,7 @@ void loop() {
   client.flushSerial();
   client.checkFona();
   client.gprsOnFona();
-  client.save_value(344.32,"569801a77625423a8d09dc3f");
-  float n = client.get_value("568d8a0a76254218b18479ec");
-  Serial.println(n);
+  float value = client.get_value("568d8a0a76254218b18479ec");
   delay(600);
+  Serial.println(value);
 }
