@@ -41,9 +41,9 @@ You may need to create the libraries subfolder if its your first library. Restar
 
 1. Download the Adafruit_FONA library [here](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip).
 2. Download the Ubidots_fona library [here](https://github.com/ubidots/ubidots-fona/archive/master.zip)
-3. Go to Arduino IDE, click on Sketch -> Included Library -> Add .zip Library
+3. Go to Arduino IDE, click on Sketch -> Include Library -> Add .zip Library
 4. Select .zip file of Adafruit_FONA and Ubidots_fona, and just add it
-5. Now go to file -> examples -> Ubidots FONA library and select get_value or save_value examples
+5. Now go to File -> Examples -> Ubidots FONA library and select get_value or save_value examples
 6. Change your token, your id and run it!  
 
 If you dont know how to do it press [here](https://www.arduino.cc/en/Guide/Libraries) and you can see the steps in Arduino page.
