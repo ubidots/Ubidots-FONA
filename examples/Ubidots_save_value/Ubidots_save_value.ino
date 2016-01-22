@@ -1,4 +1,10 @@
-#include <Ubidots_fona.h>
+#include <Ubidots_FONA.h>
+
+
+#include <SoftwareSerial.h> 
+#include <Adafruit_FONA.h>
+
+
 #define APN "Your_apn_of_your_SIM_here" 
 #define USER "Your_username_here"  // if your apn doesnt have username just put ""
 #define PASS "Your_password_here"  // if your apn doesnt have password just put ""
@@ -8,10 +14,9 @@
 Ubidots client(TOKEN);  
   
 void setup() {
- //For FONA MODULE
   Serial.begin(115200);
   delay(2000);
-  client.gprsNetwork(F(APN),F(USER),F(PASS));  //  First set your apn data
+  client.gprsNetwork(F(APN),F(USER),F(PASS));  // First set your apn data
 }
 
 void loop() {
