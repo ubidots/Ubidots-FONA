@@ -3,7 +3,7 @@
 #define DEBUG_UBIDOTS
 
 #include <SoftwareSerial.h>
-#include <Adafruit_FONA.h>
+#include "Adafruit_FONA.h"
 #include <stdlib.h>
 #include "Arduino.h"
 
