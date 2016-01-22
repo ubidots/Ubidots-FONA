@@ -1,6 +1,6 @@
 # Ubidots FONA Library 
 
-**This library requires Arduino v1.0.6 or higher**
+**This library requires Arduino v1.6.0 or higher**
 
 This is a library for the Adafruit FONA Cellular GSM Breakouts etc
 
