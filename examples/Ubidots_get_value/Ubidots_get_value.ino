@@ -1,15 +1,12 @@
 #include <Ubidots_FONA.h>
-
-
 #include <SoftwareSerial.h> 
 #include <Adafruit_FONA.h>
 
-
-#define APN "Your_apn_of_your_SIM_here" 
-#define USER "Your_username_here"  // if your apn doesnt have username just put ""
-#define PASS "Your_password_here"  // if your apn doesnt have password just put ""
-#define TOKEN "Your_token_here"  // Remplace it with your token
-#define ID "Your_id_here" // Remplace it with your variable ID
+#define APN      // The APN of your operator
+#define USER ""  // if your apn doesnt have username just leave it ""
+#define PASS ""  // if your apn doesnt have password just leave it ""
+#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
+#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
 
 Ubidots client(TOKEN);  
   
@@ -24,6 +21,6 @@ void loop() {
   client.checkFona();
   client.gprsOnFona();
   float value = client.get_value(ID);  
-  delay(600);  // 600 milliseconds 
+  delay(1000);  // 600 milliseconds 
   Serial.println(value);
 }
