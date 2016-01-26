@@ -11,7 +11,7 @@ Ubidots::Ubidots(char* token){
 void Ubidots::gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password){
         fona.setGPRSNetworkSettings(apn, username, password);
 }
-void Ubidots::save_value(float value, char* myid){
+void Ubidots::save_value(char* myid, float value){
     uint16_t statuscode;
     int16_t length;
     char* url = (char *) malloc(sizeof(char) * 400);

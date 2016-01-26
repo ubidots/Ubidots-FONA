@@ -24,7 +24,7 @@ class Ubidots{
         
         Ubidots(char* token);
         void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
-        void save_value(float value, char* myid);
+        void save_value(char* myid, float value);
         float get_value(char* myid);
         void flushSerial();
         void gprsOnFona();
