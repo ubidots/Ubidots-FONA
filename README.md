@@ -40,9 +40,10 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 **Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in their library to make sure your FONA is working properly and is able to connect to your mobile network.**
 7. Now go to File -> Examples -> Ubidots FONA library and select get_value or save_value examples
 6. Put your Ubidots token and variable ID
-7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your provider's APN settings on Google or in the provider's website.
-8. Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. 
-9. Once you see some activity, go to your Ubidots account to check your data!
+7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
+8. Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
+
+Once you see some activity, go to your Ubidots account to check your data! 
 
 To manually install the libraries, copy the Ubidots_FONA folder contained in the ZIP file into your *arduinosketchfolder*/libraries/ folder. You may need to create the libraries subfolder if its your first library, then restart the IDE.
 
