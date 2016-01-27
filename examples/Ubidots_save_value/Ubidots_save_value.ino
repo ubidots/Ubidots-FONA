@@ -24,6 +24,6 @@ void loop() {
   client.flushSerial();
   client.checkFona();
   client.gprsOnFona();
-  client.save_value(value, ID);  
+  client.save_value(ID, value);  
   delay(1000); 
 }
