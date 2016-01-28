@@ -14,23 +14,23 @@
 #define FONA_PS 8
 
 class Ubidots{
-    private:
-        SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-        Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
-        char* _token;
-        char* apn;
-
-    public:
-        
-        Ubidots(char* token);
-        void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
-        void save_value(char* myid, float value);
-        float get_value(char* myid);
-        void flushSerial();
-        void gprsOnFona();
-        void turnOffFona();
-        void turnOnFona();
-        void checkFona();
+private:
+    SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+    Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
+    char* _token;
+    char* apn;
+    
+public:
+    
+    Ubidots(char* token);
+    void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
+    void saveValue(char* myid, float value);
+    float getValue(char* myid);
+    void flushSerial();
+    void gprsOnFona();
+    void turnOffFona();
+    void turnOnFona();
+    void checkFona();
 };
 #endif
 

@@ -32,13 +32,13 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 ## Run the examples!
 
 1. Download the Adafruit_FONA library [here](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip).
-2. Download the Ubidots_FONA library [here](https://github.com/ubidots/ubidots-fona/archive/1.0.0.zip)
+2. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.1.0.zip)
 3. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
 4. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
 5. Do the same to add the Adafruit_FONA library.
 6. Close the Arduino IDE and open it again.
 **Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in their library to make sure your FONA is working properly and is able to connect to your mobile network.**
-7. Now go to File -> Examples -> Ubidots FONA library and select get_value or save_value examples
+7. Now go to File -> Examples -> Ubidots FONA library and select getValue or saveValue examples
 6. Put your Ubidots token and variable ID
 7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
 8. Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
@@ -51,4 +51,3 @@ If you're not sure how to add a library to the Arduino IDE please click [here](h
 
 You can contact support@ubidots.com for any inquiries, please specify your Mobile operator and provide the dump of the Serial Monitor for debugging purposes.
 
-Written by Mateo Velez - Metavix for Ubidots Inc. Based on Adafruit_FONA library  

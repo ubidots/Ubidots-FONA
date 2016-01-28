@@ -1,9 +1,6 @@
 #include <Ubidots_FONA.h>
-
-
 #include <SoftwareSerial.h> 
 #include <Adafruit_FONA.h>
-
 
 #define APN      // The APN of your operator
 #define USER ""  // if your apn doesnt have username just leave it ""
@@ -20,10 +17,10 @@ void setup() {
 }
 
 void loop() {
-  float value = analogRead(A0);  // Reading analog pin A0
   client.flushSerial();
   client.checkFona();
   client.gprsOnFona();
-  client.save_value(ID, value);  
-  delay(1000); 
+  float value = client.getValue(ID);  
+  delay(1000);  // 600 milliseconds 
+  Serial.println(value);
 }
