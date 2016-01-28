@@ -5,7 +5,7 @@
 #include <Adafruit_FONA.h>
 
 
-#define APN      // The APN of your operator
+#define APN  ""  // The APN of your operator
 #define USER ""  // if your apn doesnt have username just leave it ""
 #define PASS ""  // if your apn doesnt have password just leave it ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
