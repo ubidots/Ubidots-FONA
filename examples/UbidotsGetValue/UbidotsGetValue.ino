@@ -21,6 +21,6 @@ void loop() {
   client.checkFona();
   client.gprsOnFona();
   float value = client.getValue(ID);  
-  delay(1000);  // 600 milliseconds 
+  delay(1000); 
   Serial.println(value);
 }
