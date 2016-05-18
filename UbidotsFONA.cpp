@@ -154,7 +154,11 @@ bool Ubidots::sendAll() {
         return false;
     }
     fonaSS.print("AT+CIPSTART=\"TCP\",\"");
-    fonaSS.print(SERVER);
+    if (_server != NULL) {
+        fonaSS.print(_server);    
+    } else {
+        fonaSS.print(SERVER);
+    }
     fonaSS.print("\",\"");
     fonaSS.print(PORT);
     fonaSS.println("\"");
