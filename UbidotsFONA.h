@@ -11,6 +11,8 @@
 #define FONA_PS 8
 #define SERVER "translate.ubidots.com"
 #define PORT "9010"
+#define USER_AGENT "FONA"
+#define VERSION "/1.1"
 
 
 typedef struct Value {
@@ -23,6 +25,7 @@ typedef struct Value {
 class Ubidots{
 private:
     bool waitForOK(uint16_t timeout=4000);
+    bool waitForMessage(const char *msg, uint32_t ts_max);
     SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
     char* _token;
     char* _dsName;
@@ -34,19 +37,15 @@ private:
 public:
 
     Ubidots(char* token, char* server = NULL);
+    void begin();
     void setDataSourceName(char *dsName);
     void setDataSourceTag(char *dsTag);
     void add(char *variable_id, double value, char *ctext1 = NULL);
     void sendAll();
     bool setApn(char* apn, char* user = "", char* pwd = "");
 
-    float getValue(char* myid);
-
-    
-    void gprsOnFona();
     void turnOffFona();
     void turnOnFona();
-    void checkFona();
 };
 #endif
 

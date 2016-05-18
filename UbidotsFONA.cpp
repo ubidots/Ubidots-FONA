@@ -7,7 +7,7 @@
 Ubidots::Ubidots(char* token, char* server = NULL){
     _token = token;
     _server = server;
-    _dsName = "FONA";
+    _dsName = NULL;
     _dsTag = "FONA";
     currentValue = 0;
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
@@ -119,71 +119,82 @@ bool Ubidots::setApn(char* apn, char* user, char* pwd) {
     return true;
 }
 
-void Ubidots::saveValue(char* myid, float value){
-    uint16_t statuscode;
-    int16_t length;
-    char* url = (char *) malloc(sizeof(char) * 400);
-    char* data = (char *) malloc(sizeof(char) * 50);
-    char* val = (char *) malloc(sizeof(char) * 8);
-    String(value).toCharArray(val,9);
-    sprintf(url,"things.ubidots.com/api/v1.6/variables/%s/values?token=%s", myid, _token);
-    sprintf(data,"{\"value\":%s}", val);  
-    while (!fona.HTTP_POST_start(url, F("application/json"), (uint8_t *) data, strlen(data), &statuscode, (uint16_t *)&length)) {
-        Serial.println("Failed!");
+bool Ubidots::sendAll() {
+    int i;
+    String all;
+    String str;
+    all = USER_AGENT;
+    all += VERSION;
+    all += "|POST|";
+    all += _token;
+    all += "|";
+    all += _dsTag;
+    if (_dsName != NULL) {
+        all += ":";
+        all += _dsName;
     }
-    free(url);
-    free(data);
-    free(val);
-    fona.HTTP_POST_end();
-    flushSerial();
-}
-
-
-float Ubidots::getValue(char* myid){
-    uint16_t statuscode;
-    int16_t length;
-    float num;
-    char* url = (char *) malloc(sizeof(char) * 400);
-    int i = 0;
-    sprintf(url,"things.ubidots.com/api/v1.6/variables/%s/values?token=%s&page_size=1", myid, _token);
-    while (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length)) {
-        Serial.println("Failed!");
-    }
-    while(length>0){
-        while(fonaSS.available()){
-            url[i] = fonaSS.read();
-            i++;
-            length=length-1;
+    all += "=>";
+    for (i = 0; i < currentValue; ) {
+        str = String(((val + i)->varValue), 2);
+        all += String((val + i)->varName);
+        all += ":";
+        all += str;
+        if ((val + i)->ctext != NULL) {
+            all += "$";
+            all += String((val + i)->ctext);
         }
-        delay(10);
+        all += ","; 
+        i++;
     }
-    char* pch = strstr(url,"\"value\":");
-    String raw(pch);
-    int bodyPosinit =9+ raw.indexOf("\"value\":");
-    int bodyPosend = raw.indexOf(", \"timestamp\"");
-    raw.substring(bodyPosinit,bodyPosend).toCharArray(url, 10);
-    num = atof(url);
-    free(url);
-    fona.HTTP_GET_end();
-    flushSerial();
-    return num;  
+    all += "|end";
+    Serial.println(all.c_str());
+    fonaSS.println("AT+CIPMUX=0");
+    if (!waitForOK(6000)) {
+        SerialUSB.println("Error CIPMUX=0");
+        return false;
+    }
+    fonaSS.print("AT+CIPSTART=\"TCP\",\"");
+    fonaSS.print(SERVER);
+    fonaSS.print("\",\"");
+    fonaSS.print(PORT);
+    fonaSS.println("\"");
+    if (!waitForOK(6000)) {
+        SerialUSB.println("Error at CIPSTART");
+        return false;
+    }
+    fonaSS.println("AT+CIPSEND");
+    if (!waitForMessage(">", 6000)) {
+        SerialUSB.println("Error at CIPSEND");
+        return false;
+    }
+    fonaSS.write(all.c_str());
+    fonaSS.write(0x1A);
+    if (!waitForMessage("SEND OK", 6000)) {
+        SerialUSB.println("Error sending the message");
+        return false;
+    }
+    fonaSS.println("AT+CIPCLOSE");
+    if (!waitForMessage("CLOSE OK", 6000)) {
+        SerialUSB.println("Error closing TCP connection");
+        return false;
+    }
+    return true;
 }
 
-
-// See this functions and change
-void Ubidots::checkFona(){
-    // See if the FONA is responding
-    if (! fona.begin(fonaSS)) {           // can also try fona.begin(fonaSS)
-        Serial.println("Couldn't find FONA");
+bool Ubidots::waitForMessage(const char *msg, uint32_t ts_max) {
+    int len;
+    while ((len = readLine(ts_max)) >= 0) {
+        if (len == 0) {
+            // Skip empty lines
+            continue;
+        }
+        if (strncmp(buffer, msg, strlen(msg)) == 0) {
+            return true;
+        }
     }
-    Serial.println("FONA is OK");
-    //configure a GPRS APN
-    
+    return false;         // This indicates: timed out
 }
-void Ubidots::gprsOnFona(){
-    while(!fona.enableGPRS(true));
-    Serial.println(F("Turn on"));
-}
+
 void Ubidots::turnOnFona(){
     Serial.println("Turning on Fona: ");
     while(digitalRead(FONA_PS)==LOW){
