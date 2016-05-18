@@ -13,6 +13,15 @@ Ubidots::Ubidots(char* token, char* server = NULL){
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
     fonaSS.begin(4800);
 }
+void Ubidots::begin() {
+    pinMode(FONA_RST, OUTPUT);
+    digitalWrite(FONA_RST, HIGH);
+    delay(10);
+    digitalWrite(FONA_RST, LOW);
+    delay(100);
+    digitalWrite(FONA_RST, HIGH);
+    delay(500);
+}
 
 void Ubidots::setDataSourceName(char* dsName) {
     _dsName = dsName;
@@ -51,53 +60,58 @@ bool Ubidots::waitForOK(uint16_t timeout) {
 }
 
 bool Ubidots::setApn(char* apn, char* user, char* pwd) {
-    Serial1.println("AT+CSQ");
+    fonaSS.println("AT");
+    if (!waitForOK(6000)) {
+        SerialUSB.println("------>AT");
+        return false;
+    }
+    fonaSS.println("AT+CSQ");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at CSQ");
         return false;
     }
-    Serial1.println("AT+CIPSHUT");
+    fonaSS.println("AT+CIPSHUT");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at CIPSHUT");
         return false;
     }
-    Serial1.println("AT+CGATT?");
+    fonaSS.println("AT+CGATT?");
     if (!waitForOK(6000)) {
         SerialUSB.println("GPRS is not attached");
         return false;
     }
-    Serial1.println("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
+    fonaSS.println("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at setting up CONTYPE");
         return false;
     }
-    Serial1.print("AT+SAPBR=3,1,\"APN\",\"");
-    Serial1.print(apn);
-    Serial1.println("\"");
+    fonaSS.print("AT+SAPBR=3,1,\"APN\",\"");
+    fonaSS.print(apn);
+    fonaSS.println("\"");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at setting up APN");
         return false;
     }
-    Serial1.print("AT+SAPBR=3,1,\"USER\",\"");
-    Serial1.print(user);
-    Serial1.println("\"");
+    fonaSS.print("AT+SAPBR=3,1,\"USER\",\"");
+    fonaSS.print(user);
+    fonaSS.println("\"");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at setting up apn user");
         return false;
     }
-    Serial1.print("AT+SAPBR=3,1,\"PWD\",\"");
-    Serial1.print(pwd);
-    Serial1.println("\"");
+    fonaSS.print("AT+SAPBR=3,1,\"PWD\",\"");
+    fonaSS.print(pwd);
+    fonaSS.println("\"");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error at setting up apn pass");
         return false;
     }
-    Serial1.println("AT+SAPBR=1,1");
+    fonaSS.println("AT+SAPBR=1,1");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error with AT+SAPBR=1,1 Connection ip");
         return false;
     }
-    Serial1.println("AT+SAPBR=2,1");
+    fonaSS.println("AT+SAPBR=2,1");
     if (!waitForOK(6000)) {
         SerialUSB.println("Error with AT+SAPBR=2,1 no IP to show");
         return false;
@@ -159,7 +173,7 @@ float Ubidots::getValue(char* myid){
 // See this functions and change
 void Ubidots::checkFona(){
     // See if the FONA is responding
-    if (! fona.begin(fonaSS)) {           // can also try fona.begin(Serial1)
+    if (! fona.begin(fonaSS)) {           // can also try fona.begin(fonaSS)
         Serial.println("Couldn't find FONA");
     }
     Serial.println("FONA is OK");
