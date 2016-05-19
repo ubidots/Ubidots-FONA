@@ -160,6 +160,7 @@ bool Ubidots::sendAll() {
     fonaSS.println("AT+CIPMUX=0");
     if (!waitForOK(6000)) {
         Serial.println("Error CIPMUX=0");
+        currentValue = 0;
         return false;
     }
     fonaSS.print("AT+CIPSTART=\"TCP\",\"");
@@ -173,24 +174,29 @@ bool Ubidots::sendAll() {
     fonaSS.println("\"");
     if (!waitForOK(6000)) {
         Serial.println("Error at CIPSTART");
+        currentValue = 0;
         return false;
     }
     fonaSS.println("AT+CIPSEND");
     if (!waitForMessage(">", 6000)) {
         Serial.println("Error at CIPSEND");
+        currentValue = 0;
         return false;
     }
     fonaSS.write(all.c_str());
     fonaSS.write(0x1A);
     if (!waitForMessage("SEND OK", 6000)) {
         Serial.println("Error sending the message");
+        currentValue = 0;
         return false;
     }
     fonaSS.println("AT+CIPCLOSE");
     if (!waitForMessage("CLOSE OK", 6000)) {
         Serial.println("Error closing TCP connection");
+        currentValue = 0;
         return false;
     }
+    currentValue = 0;
     return true;
 }
 
