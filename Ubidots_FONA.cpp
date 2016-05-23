@@ -259,8 +259,11 @@ void Ubidots::flushSerial() {
     while (Serial.available())
     Serial.read();
 }
+// ------------------------------------------------------------------
+// -------------------------WARNING----------------------------------
+// ------------------------------------------------------------------
 /* Deprecated functions
-* Nex functions was deprecated at version 1.2 of Fona Library
+* Next functions was deprecated at version 1.2 of Fona Library
 */
 void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
 
