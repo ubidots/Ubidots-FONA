@@ -145,7 +145,6 @@ bool Ubidots::sendAll() {
             fonaSS.write(all.c_str());
             fonaSS.write(0x1A);
         }
-        Serial.println(message[i]);
         if (!waitForMessage(message[i+3],6000)) {
             Serial.print("Error with ");
             Serial.println(message[i]);
@@ -170,10 +169,11 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
         return false;
     }
     fonaSS.write(allData);
-    if (!waitForMessage("SEND OK", 6000)) {
+    if (!waitForMessage("|OK", 6000)) {
         Serial.println("Error sending the message");
         return false;
     }
+    response = String(buffer);
     bodyPosinit = 3 + response.indexOf("OK|");
     response = response.substring(bodyPosinit);
     num = response.toFloat();
