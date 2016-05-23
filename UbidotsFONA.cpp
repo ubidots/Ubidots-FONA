@@ -50,8 +50,9 @@ void Ubidots::add(char *variable_id, float value, char *ctext1) {
     }
 }
 
-bool Ubidots::waitForOK(uint16_t timeout) {
+bool Ubidots::SendMessageAndwaitForOK(char* message, uint16_t timeout) {
     int len;
+    fonaSS.println(message);
     uint32_t ts_max = millis() + timeout;
     while ((len = readLine(ts_max)) >= 0) {
         if (len == 0) {
@@ -69,67 +70,31 @@ bool Ubidots::waitForOK(uint16_t timeout) {
 }
 
 bool Ubidots::setApn(char* apn, char* user, char* pwd) {
-    fonaSS.println("AT");
-    if (!waitForOK(6000)) {
-        Serial.println("------>AT");
-        return false;
-    }
-    fonaSS.println("AT+CSQ");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at CSQ");
-        return false;
-    }
-    fonaSS.println("AT+CIPSHUT");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at CIPSHUT");
-        return false;
-    }
-    fonaSS.println("AT+CGATT?");
-    if (!waitForOK(6000)) {
-        Serial.println("GPRS is not attached");
-        return false;
-    }
-    fonaSS.println("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at setting up CONTYPE");
-        return false;
-    }
-    fonaSS.print("AT+SAPBR=3,1,\"APN\",\"");
-    fonaSS.print(apn);
-    fonaSS.println("\"");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at setting up APN");
-        return false;
-    }
-    fonaSS.print("AT+SAPBR=3,1,\"USER\",\"");
-    fonaSS.print(user);
-    fonaSS.println("\"");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at setting up apn user");
-        return false;
-    }
-    fonaSS.print("AT+SAPBR=3,1,\"PWD\",\"");
-    fonaSS.print(pwd);
-    fonaSS.println("\"");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at setting up apn pass");
-        return false;
-    }
-    fonaSS.println("AT+SAPBR=1,1");
-    if (!waitForOK(6000)) {
-        Serial.println("Error with AT+SAPBR=1,1 Connection ip");
-        return false;
-    }
-    fonaSS.println("AT+SAPBR=2,1");
-    if (!waitForOK(6000)) {
-        Serial.println("Error with AT+SAPBR=2,1 no IP to show");
-        return false;
+    int i = 0;
+    char message[10][50];
+    sprintf(message[0], "AT");
+    sprintf(message[1], "AT+CSQ");
+    sprintf(message[2], "AT+CIPSHUT");
+    sprintf(message[3], "AT+CGATT?");
+    sprintf(message[4], "AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
+    sprintf(message[5], "AT+SAPBR=3,1,\"APN\",\"%s\"",apn);
+    sprintf(message[6], "AT+SAPBR=3,1,\"USER\",\"%s\"",user);
+    sprintf(message[7], "AT+SAPBR=3,1,\"PWD\",\"%s\"",pwd);
+    sprintf(message[8], "AT+SAPBR=1,1");
+    sprintf(message[9], "AT+SAPBR=2,1");
+    for(i = 0; i < 10; i++) {
+        if (!SendMessageAndwaitForOK(message[i], 6000)) {
+            Serial.print("Error with ");
+            Serial.println(message[i]);
+            return false;
+        }
     }
     return true;
 }
 
 bool Ubidots::sendAll() {
     int i;
+    char message[8][50];
     String all;
     String str;
     all = USER_AGENT;
@@ -156,45 +121,35 @@ bool Ubidots::sendAll() {
         i++;
     }
     all += "|end";
-    Serial.println(all.c_str());
-    fonaSS.println("AT+CIPMUX=0");
-    if (!waitForOK(6000)) {
-        Serial.println("Error CIPMUX=0");
-        currentValue = 0;
-        return false;
+    sprintf(message[0], "AT+CIPMUX=0");
+    sprintf(message[1], "AT+CIPSTART=\"TCP\",\"%s\",\"%s\"", _server, PORT);
+    sprintf(message[2], "AT+CIPSEND");
+    sprintf(message[4], "AT+CIPCLOSE");
+    sprintf(message[5], ">");
+    sprintf(message[6], "SEND OK");
+    sprintf(message[7], "CLOSE OK");
+    for (i = 0; i < 2; i++) {
+        if (!SendMessageAndwaitForOK(message[i],6000)) {
+            Serial.print("Error with ");
+            Serial.println(message[i]);
+            currentValue = 0;
+            return false;
+        }
     }
-    fonaSS.print("AT+CIPSTART=\"TCP\",\"");
-    if (_server != NULL) {
-        fonaSS.print(_server);    
-    } else {
-        fonaSS.print(SERVER);
-    }
-    fonaSS.print("\",\"");
-    fonaSS.print(PORT);
-    fonaSS.println("\"");
-    if (!waitForOK(6000)) {
-        Serial.println("Error at CIPSTART");
-        currentValue = 0;
-        return false;
-    }
-    fonaSS.println("AT+CIPSEND");
-    if (!waitForMessage(">", 6000)) {
-        Serial.println("Error at CIPSEND");
-        currentValue = 0;
-        return false;
-    }
-    fonaSS.write(all.c_str());
-    fonaSS.write(0x1A);
-    if (!waitForMessage("SEND OK", 6000)) {
-        Serial.println("Error sending the message");
-        currentValue = 0;
-        return false;
-    }
-    fonaSS.println("AT+CIPCLOSE");
-    if (!waitForMessage("CLOSE OK", 6000)) {
-        Serial.println("Error closing TCP connection");
-        currentValue = 0;
-        return false;
+    for (i = 2; i < 8; i++) {
+        if (i != 3) {
+            fonaSS.println(message[i]);
+        } else {
+            fonaSS.write(all.c_str());
+            fonaSS.write(0x1A);
+        }
+        Serial.println(message[i]);
+        if (!waitForMessage(message[i+3],6000)) {
+            Serial.print("Error with ");
+            Serial.println(message[i]);
+            currentValue = 0;
+            return false;
+        }
     }
     currentValue = 0;
     return true;
@@ -206,14 +161,13 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
     char allData[300];
     String response;
     uint8_t bodyPosinit;
-    sprintf(allData, "%s%s|LV|%s|%s:%s|end", USER_AGENT, VERSION, _token, dsTag, idName);
+    sprintf(allData, "%s%s|LV|%s|%s:%s|end\n\x1A", USER_AGENT, VERSION, _token, dsTag, idName);
     fonaSS.println("AT+CIPSEND");
     if (!waitForMessage(">", 6000)) {
         Serial.println("Error at CIPSEND");
         return false;
     }
     fonaSS.write(allData);
-    fonaSS.write(0x1A);
     if (!waitForMessage("SEND OK", 6000)) {
         Serial.println("Error sending the message");
         return false;
@@ -239,7 +193,6 @@ bool Ubidots::waitForMessage(const char *msg, uint32_t ts_max) {
     }
     return false;         // This indicates: timed out
 }
-
 int Ubidots::readLine(uint32_t ts_max) {
     uint32_t ts_waitLF = 0;
     bool seenCR = false;

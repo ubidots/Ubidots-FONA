@@ -55,10 +55,10 @@ typedef struct Value {
 class Ubidots{
 private:
     SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-    bool waitForOK(uint16_t timeout=4000);
+    bool SendMessageAndwaitForOK(char* message, uint16_t timeout=4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
-    int readLine(uint32_t ts_max); 
+    int readLine(uint32_t ts_max);
     char* _token;
     char* _dsName;
     char* _dsTag;
@@ -70,7 +70,7 @@ private:
     
 public:
 
-    Ubidots(char* token, char* server = NULL);
+    Ubidots(char* token, char* server = SERVER);
     void begin();
     void setDataSourceName(char *dsName);
     void setDataSourceTag(char *dsTag);
@@ -78,7 +78,6 @@ public:
     bool sendAll();
     float getValueWithDatasource(char* dsTag, char* idName);
     bool setApn(char* apn, char* user = "", char* pwd = "");
-
     void turnOffFona();
     void turnOnFona();
 };
