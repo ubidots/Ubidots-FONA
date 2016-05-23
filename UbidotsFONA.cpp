@@ -21,8 +21,10 @@ Ubidots::Ubidots(char* token, char* server){
     currentValue = 0;
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
     fonaSS.begin(4800);
+    begin();
 }
-/*void Ubidots::begin() {
+
+void Ubidots::begin() {
     pinMode(FONA_RST, OUTPUT);
     digitalWrite(FONA_RST, HIGH);
     delay(10);
@@ -30,7 +32,7 @@ Ubidots::Ubidots(char* token, char* server){
     delay(100);
     digitalWrite(FONA_RST, HIGH);
     delay(500);
-}*/
+}
 
 void Ubidots::setDataSourceName(char* dsName) {
     _dsName = dsName;
