@@ -24,8 +24,8 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 
 */
 
-#ifndef __UbidotsFONA_H_
-#define __UbidotsFONA_H_
+#ifndef __Ubidots_FONA_H_
+#define __Ubidots_FONA_H_
 #define DEBUG_UBIDOTS
 
 #include <SoftwareSerial.h>
@@ -69,7 +69,6 @@ private:
 
     
 public:
-
     Ubidots(char* token, char* server = SERVER);
     void begin();
     void setDataSourceName(char *dsName);
@@ -80,6 +79,11 @@ public:
     bool setApn(char* apn, char* user = "", char* pwd = "");
     void turnOffFona();
     void turnOnFona();
+    void flushSerial();
+    // Deprecated functions
+    void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
+    void saveValue(char* myid, float value);
+    float getValue(char* myid);
 };
 #endif
 

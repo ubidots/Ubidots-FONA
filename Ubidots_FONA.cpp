@@ -8,7 +8,7 @@
 #endif
 #include <stdlib.h>
 
-#include "UbidotsFONA.h"
+#include "Ubidots_FONA.h"
 /**
  * Constructor.
  */
@@ -253,4 +253,21 @@ void Ubidots::turnOffFona(){
     }
     digitalWrite(FONA_KEY, HIGH);
     delay(4000);
+}
+
+void Ubidots::flushSerial() {
+    while (Serial.available())
+    Serial.read();
+}
+/* Deprecated functions
+* Nex functions was deprecated at version 1.2 of Fona Library
+*/
+void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
+
+}
+void saveValue(char* myid, float value) {
+    
+}
+float getValue(char* myid) {
+
 }
