@@ -52,7 +52,7 @@ void Ubidots::add(char *variable_id, float value, char *ctext1) {
     }
 }
 
-bool Ubidots::SendMessageAndwaitForOK(char* message, uint16_t timeout) {
+bool Ubidots::sendMessageAndwaitForOK(char* message, uint16_t timeout) {
     int len;
     fonaSS.println(message);
     uint32_t ts_max = millis() + timeout;
@@ -85,7 +85,7 @@ bool Ubidots::setApn(char* apn, char* user, char* pwd) {
     sprintf(message[8], "AT+SAPBR=1,1");
     sprintf(message[9], "AT+SAPBR=2,1");
     for(i = 0; i < 10; i++) {
-        if (!SendMessageAndwaitForOK(message[i], 6000)) {
+        if (!sendMessageAndwaitForOK(message[i], 6000)) {
             Serial.print("Error with ");
             Serial.println(message[i]);
             return false;
@@ -100,6 +100,7 @@ bool Ubidots::sendAll() {
     String all;
     String str;
     all = USER_AGENT;
+    all += "/";
     all += VERSION;
     all += "|POST|";
     all += _token;
@@ -131,7 +132,7 @@ bool Ubidots::sendAll() {
     sprintf(message[6], "SEND OK");
     sprintf(message[7], "CLOSE OK");
     for (i = 0; i < 2; i++) {
-        if (!SendMessageAndwaitForOK(message[i],6000)) {
+        if (!sendMessageAndwaitForOK(message[i],6000)) {
             Serial.print("Error with ");
             Serial.println(message[i]);
             currentValue = 0;
@@ -162,7 +163,7 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
     char allData[300];
     String response;
     uint8_t bodyPosinit;
-    sprintf(allData, "%s%s|LV|%s|%s:%s|end\n\x1A", USER_AGENT, VERSION, _token, dsTag, idName);
+    sprintf(allData, "%s/%s|LV|%s|%s:%s|end\n\x1A", USER_AGENT, VERSION, _token, dsTag, idName);
     fonaSS.println("AT+CIPSEND");
     if (!waitForMessage(">", 6000)) {
         Serial.println("Error at CIPSEND");
@@ -255,22 +256,26 @@ void Ubidots::turnOffFona(){
     delay(4000);
 }
 
-void Ubidots::flushSerial() {
-    while (Serial.available())
-    Serial.read();
-}
+
 // ------------------------------------------------------------------
 // -------------------------WARNING----------------------------------
 // ------------------------------------------------------------------
 /* Deprecated functions
 * Next functions was deprecated at version 1.2 of Fona Library
 */
-void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
+void Ubidots::gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
 
 }
-void saveValue(char* myid, float value) {
+void Ubidots::saveValue(char* myid, float value) {
     
 }
-float getValue(char* myid) {
+float Ubidots::getValue(char* myid) {
 
+}
+void Ubidots::gprsOnFona() {
+
+}
+void Ubidots::flushSerial() {
+    while (Serial.available())
+    Serial.read();
 }

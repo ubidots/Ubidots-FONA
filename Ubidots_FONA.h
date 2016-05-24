@@ -41,7 +41,7 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define SERVER "translate.ubidots.com"
 #define PORT "9010"
 #define USER_AGENT "FONA"
-#define VERSION "/1.1"
+#define VERSION "1.1"
 #define MAX_VALUES 5
 
 
@@ -55,7 +55,7 @@ typedef struct Value {
 class Ubidots{
 private:
     SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-    bool SendMessageAndwaitForOK(char* message, uint16_t timeout=4000);
+    bool sendMessageAndwaitForOK(char* message, uint16_t timeout=4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
     int readLine(uint32_t ts_max);
@@ -67,7 +67,6 @@ private:
     uint8_t currentValue;
     Value * val;
 
-    
 public:
     Ubidots(char* token, char* server = SERVER);
     void begin();
@@ -79,11 +78,12 @@ public:
     bool setApn(char* apn, char* user = "", char* pwd = "");
     void turnOffFona();
     void turnOnFona();
-    void flushSerial();
     // Deprecated functions
     void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
     void saveValue(char* myid, float value);
     float getValue(char* myid);
+    void flushSerial();
+-   void gprsOnFona();
 };
 #endif
 
