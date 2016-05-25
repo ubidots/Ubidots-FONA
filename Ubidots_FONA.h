@@ -67,7 +67,7 @@ private:
     uint8_t currentValue;
     Value * val;
     // Variables to retro-compatibility
-    PROGMEM char* _apn;
+    char* _apn;
     char* _user;
     char* _pwd;
     bool httpTerm();
