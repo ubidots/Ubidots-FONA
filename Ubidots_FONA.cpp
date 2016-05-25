@@ -269,22 +269,73 @@ void Ubidots::gprsNetwork(char* apn, char* username, char* password) {
     _pwd = password;
 }
 void Ubidots::saveValue(char* myid, float value) {
-    uint16_t statuscode;
-    int16_t length;
-    char* url = (char *) malloc(sizeof(char) * 400);
-    char* data = (char *) malloc(sizeof(char) * 50);
-    char* val = (char *) malloc(sizeof(char) * 8);
-    String(value).toCharArray(val,9);
-    sprintf(url, "things.ubidots.com/api/v1.6/variables/%s/values?token=%s", myid, _token);
-    sprintf(data, "{\"value\":%s}", val);
-    while (!fona.HTTP_POST_start(url, F("application/json"), (uint8_t *) data, strlen(data), &statuscode, (uint16_t *)&length)) {
-        Serial.println("Failed!");
+    char data[25];
+    String val;
+    val = String(value, 2);
+    httpTerm();
+    sprintf(data,"{\"value\":%s}", val.c_str());
+    Serial.println(data);
+    httpInit();
+    Serial.println(_token);
+    fonaSS.print(F("AT+HTTPPARA=\"URL\",\"things.ubidots.com/api/v1.6/variables/"));
+    fonaSS.print(id);
+    fonaSS.print(F("/values?token="));
+    fonaSS.print(_token);
+    if (!sendMessageAndwaitForOK("\"", 4000)) {
+        Serial.println(F("Error with AT+HTTPARA URL"));     
+        httpTerm();
+        return false;
     }
-    free(url);
-    free(data);
-    free(val);
-    fona.HTTP_POST_end();
-    flushSerial();
+    if (!sendMessageAndwaitForOK("AT+HTTPPARA=\"CONTENT\",\"application/json\"", 4000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPARA CONTENT"));
+#endif
+        httpTerm();
+        return false;
+    }
+    fonaSS.print(F("AT+HTTPDATA="));
+    fonaSS.print(strlen(data));
+    fonaSS.print(F(","));
+    fonaSS.println(120000);
+    if (!waitForMessage("DOWNLOAD",2000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPDATA"));
+#endif
+        httpTerm();
+        return false;
+    }
+    fonaSS.write(data, strlen(data));
+    if (!waitForMessage("OK",2000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error sending data and data length"));
+#endif
+        httpTerm();
+        return false;
+    }
+    fonaSS.println(F("AT+HTTPACTION=1"));  // HTTPACTION=1 is a POST method
+    delay(5000);
+    if (!waitForMessage("+HTTPACTION:1,201",2000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPACTION=1"));
+        Serial.println(F("Status = 603 is DNS Error, maybe your SIM doesn't have mobile data"));
+        Serial.println(F("Status = 601 Network Error, maybe your SIM doesn't have mobile data"));
+        Serial.println(F("Status = 400 Bad Request, Your URL is wrong"));
+        Serial.println(F("Status = 402 Payment Required, You exceed your dots in Ubidots"));
+#endif
+        httpTerm();
+        return false;       
+    } else {
+        fonaSS.println(F("AT+HTTPREAD"));
+        if (!waitForMessage("+HTTPREAD:",2000)) {
+#ifdef DEBUG_UBIDOTS
+            Serial.println(F("Error with AT+HTTPREAD. Closing HTTP Client"));
+#endif
+            httpTerm();
+            return false;
+        }
+    }
+    httpTerm();
+    return true;
 }
 float Ubidots::getValue(char* myid) {
     float num;
@@ -331,7 +382,7 @@ float Ubidots::getValue(char* myid) {
         int bodyPosinit =9 + raw.indexOf("\"value\":");
         int bodyPosend = raw.indexOf(", \"timestamp\"");
         raw.substring(bodyPosinit, bodyPosend).toCharArray(reply, 10);
-        num = atof(reply);      
+        num = atof(reply);
         httpTerm();
         return num;
     }
