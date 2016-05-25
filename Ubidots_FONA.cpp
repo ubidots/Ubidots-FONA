@@ -268,7 +268,7 @@ void Ubidots::gprsNetwork(char* apn, char* username, char* password) {
     _user = username;
     _pwd = password;
 }
-void Ubidots::saveValue(char* myid, float value) {
+bool Ubidots::saveValue(char* myid, float value) {
     char data[25];
     String val;
     val = String(value, 2);
@@ -278,7 +278,7 @@ void Ubidots::saveValue(char* myid, float value) {
     httpInit();
     Serial.println(_token);
     fonaSS.print(F("AT+HTTPPARA=\"URL\",\"things.ubidots.com/api/v1.6/variables/"));
-    fonaSS.print(id);
+    fonaSS.print(myid);
     fonaSS.print(F("/values?token="));
     fonaSS.print(_token);
     if (!sendMessageAndwaitForOK("\"", 4000)) {
@@ -314,7 +314,7 @@ void Ubidots::saveValue(char* myid, float value) {
     }
     fonaSS.println(F("AT+HTTPACTION=1"));  // HTTPACTION=1 is a POST method
     delay(5000);
-    if (!waitForMessage("+HTTPACTION:1,201",2000)) {
+    if (!waitForMessage("+HTTPACTION:1,201", 2000)) {
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+HTTPACTION=1"));
         Serial.println(F("Status = 603 is DNS Error, maybe your SIM doesn't have mobile data"));
@@ -323,10 +323,10 @@ void Ubidots::saveValue(char* myid, float value) {
         Serial.println(F("Status = 402 Payment Required, You exceed your dots in Ubidots"));
 #endif
         httpTerm();
-        return false;       
+        return false;
     } else {
         fonaSS.println(F("AT+HTTPREAD"));
-        if (!waitForMessage("+HTTPREAD:",2000)) {
+        if (!waitForMessage("+HTTPREAD:", 2000)) {
 #ifdef DEBUG_UBIDOTS
             Serial.println(F("Error with AT+HTTPREAD. Closing HTTP Client"));
 #endif
@@ -346,7 +346,7 @@ float Ubidots::getValue(char* myid) {
     httpTerm();
     httpInit();
     fonaSS.print(F("AT+HTTPPARA=\"URL\",\"things.ubidots.com/api/v1.6/variables/"));
-    fonaSS.print(id);
+    fonaSS.print(myid);
     fonaSS.print(F("/values?token="));
     fonaSS.print(_token);
     if (!sendMessageAndwaitForOK("&page_size=1\"", 6000)) {
@@ -381,8 +381,8 @@ float Ubidots::getValue(char* myid) {
 #endif
         int bodyPosinit =9 + raw.indexOf("\"value\":");
         int bodyPosend = raw.indexOf(", \"timestamp\"");
-        raw.substring(bodyPosinit, bodyPosend).toCharArray(reply, 10);
-        num = atof(reply);
+        raw.substring(bodyPosinit, bodyPosend).toCharArray(buffer, 10);
+        num = atof(buffer);
         httpTerm();
         return num;
     }
@@ -417,3 +417,14 @@ bool Ubidots::httpInit(){
     return true;
 }
 
+void Ubidots::flushInput() {
+    // Read all available serial input to flush pending data.
+    uint16_t timeoutloop = 0;
+    while (timeoutloop++ < 40) {
+        while(Serial.available()) {
+            Serial.read();
+            timeoutloop = 0;  // If char was received reset the timer
+        }
+        delay(1);
+    }
+}

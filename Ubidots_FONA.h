@@ -72,6 +72,7 @@ private:
     char* _pwd;
     bool httpTerm();
     bool httpInit();
+    void flushInput();
 
 public:
     Ubidots(char* token, char* server = SERVER);
@@ -86,7 +87,7 @@ public:
     void turnOnFona();
     // Deprecated functions
     void gprsNetwork(char* apn, char* username, char* password);
-    void saveValue(char* myid, float value);
+    bool saveValue(char* myid, float value);
     float getValue(char* myid);
     void flushSerial();
     void gprsOnFona();
