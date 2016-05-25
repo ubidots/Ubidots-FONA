@@ -132,7 +132,7 @@ bool Ubidots::sendAll() {
     sprintf(message[6], "SEND OK");
     sprintf(message[7], "CLOSE OK");
     for (i = 0; i < 2; i++) {
-        if (!sendMessageAndwaitForOK(message[i],6000)) {
+        if (!sendMessageAndwaitForOK(message[i], 6000)) {
             Serial.print("Error with ");
             Serial.println(message[i]);
             currentValue = 0;
@@ -146,7 +146,7 @@ bool Ubidots::sendAll() {
             fonaSS.write(all.c_str());
             fonaSS.write(0x1A);
         }
-        if (!waitForMessage(message[i+3],6000)) {
+        if (!waitForMessage(message[i+3], 6000)) {
             Serial.print("Error with ");
             Serial.println(message[i]);
             currentValue = 0;
@@ -287,33 +287,54 @@ void Ubidots::saveValue(char* myid, float value) {
     flushSerial();
 }
 float Ubidots::getValue(char* myid) {
-    uint16_t statuscode;
-    int16_t length;
     float num;
-    char* url = (char *) malloc(sizeof(char) * 400);
-    int i = 0;
-    sprintf(url, "things.ubidots.com/api/v1.6/variables/%s/values?token=%s&page_size=1", myid, _token);
-    while (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length)) {
-        Serial.println("Failed!");
+    String raw;
+    uint8_t bodyPosinit;
+    uint8_t bodyPosend;
+    flushInput();
+    httpTerm();
+    httpInit();
+    fonaSS.print(F("AT+HTTPPARA=\"URL\",\"things.ubidots.com/api/v1.6/variables/"));
+    fonaSS.print(id);
+    fonaSS.print(F("/values?token="));
+    fonaSS.print(_token);
+    if (!sendMessageAndwaitForOK("&page_size=1\"", 6000)) {
+        httpTerm();
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPPARA URL. Closing HTTP Client"));
+#endif      
+        return 1;
     }
-    while (length > 0){
-        while (fonaSS.available()) {
-            url[i] = fonaSS.read();
-            i++;
-            length=length-1;
+    fonaSS.println(F("AT+HTTPACTION=0"));
+    if (!waitForMessage("+HTTPACTION:0,200", 4000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Status = 603 is DNS Error, maybe your SIM doesn't have mobile data"));
+        Serial.println(F("Status = 601 Network Error, maybe your SIM doesn't have mobile data"));
+        Serial.println(F("Status = 400 Bad Request, Your URL is wrong"));
+        Serial.println(F("Status = 402 Payment Required, You exceed your dots in Ubidots"));
+#endif
+        httpTerm();
+        return 1; 
+    } else {
+        fonaSS.println(F("AT+HTTPREAD"));
+        if (!waitForMessage("+HTTPREAD:", 3000)) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPREAD. Closing HTTP Client"));
+#endif
+            httpTerm();
+            return 1;
         }
-        delay(10);
+        char* pch = strstr(buffer,"\"value\":");
+#ifdef DEBUG_UBIDOTS
+        String raw(pch);
+#endif
+        int bodyPosinit =9 + raw.indexOf("\"value\":");
+        int bodyPosend = raw.indexOf(", \"timestamp\"");
+        raw.substring(bodyPosinit, bodyPosend).toCharArray(reply, 10);
+        num = atof(reply);      
+        httpTerm();
+        return num;
     }
-    char* pch = strstr(url,"\"value\":");
-    String raw(pch);
-    int bodyPosinit =9+ raw.indexOf("\"value\":");
-    int bodyPosend = raw.indexOf(", \"timestamp\"");
-    raw.substring(bodyPosinit,bodyPosend).toCharArray(url, 10);
-    num = atof(url);
-    free(url);
-    fona.HTTP_GET_end();
-    flushSerial();
-    return num;
 }
 void Ubidots::gprsOnFona() {
     setApn(_apn, _user, _pwd);
