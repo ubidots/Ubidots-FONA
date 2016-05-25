@@ -67,7 +67,7 @@ private:
     uint8_t currentValue;
     Value * val;
     // Variables to retro-compatibility
-    char* _apn;
+    PROGMEM char* _apn;
     char* _user;
     char* _pwd;
     bool httpTerm();
@@ -86,11 +86,12 @@ public:
     void turnOffFona();
     void turnOnFona();
     // Deprecated functions
-    void gprsNetwork(char* apn, char* username, char* password);
+    void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
     bool saveValue(char* myid, float value);
     float getValue(char* myid);
     void flushSerial();
     void gprsOnFona();
+    bool checkFona();
 };
 #endif  // __Ubidots_FONA_H_
 

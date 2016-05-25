@@ -263,10 +263,11 @@ void Ubidots::turnOffFona(){
 /* Deprecated functions
 * Next functions was deprecated at version 1.2 of Fona Library
 */
-void Ubidots::gprsNetwork(char* apn, char* username, char* password) {
-    _apn = apn;
-    _user = username;
-    _pwd = password;
+
+void Ubidots::gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
+    _apn = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(apn));
+    _user = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(username));
+    _pwd = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(password));
 }
 bool Ubidots::saveValue(char* myid, float value) {
     char data[25];
@@ -427,4 +428,12 @@ void Ubidots::flushInput() {
         }
         delay(1);
     }
+}
+
+bool Ubidots::checkFona(){
+     if (!sendMessageAndwaitForOK("ATE0", 6000)) {
+        Serial.print("Couldn't find FONA");
+        return false;
+    }
+    return true;
 }
