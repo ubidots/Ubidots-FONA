@@ -87,7 +87,8 @@ public:
     void saveValue(char* myid, float value);
     float getValue(char* myid);
     void flushSerial();
--   void gprsOnFona();
+    void gprsOnFona();
+    bool httpTerm();
 };
 #endif
 

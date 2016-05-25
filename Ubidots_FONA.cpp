@@ -269,10 +269,51 @@ void Ubidots::gprsNetwork(char* apn, char* username, char* password) {
     _pwd = password;
 }
 void Ubidots::saveValue(char* myid, float value) {
-
+    uint16_t statuscode;
+    int16_t length;
+    char* url = (char *) malloc(sizeof(char) * 400);
+    char* data = (char *) malloc(sizeof(char) * 50);
+    char* val = (char *) malloc(sizeof(char) * 8);
+    String(value).toCharArray(val,9);
+    sprintf(url, "things.ubidots.com/api/v1.6/variables/%s/values?token=%s", myid, _token);
+    sprintf(data, "{\"value\":%s}", val);
+    while (!fona.HTTP_POST_start(url, F("application/json"), (uint8_t *) data, strlen(data), &statuscode, (uint16_t *)&length)) {
+        Serial.println("Failed!");
+    }
+    free(url);
+    free(data);
+    free(val);
+    fona.HTTP_POST_end();
+    flushSerial();
 }
 float Ubidots::getValue(char* myid) {
-
+    uint16_t statuscode;
+    int16_t length;
+    float num;
+    char* url = (char *) malloc(sizeof(char) * 400);
+    int i = 0;
+    sprintf(url, "things.ubidots.com/api/v1.6/variables/%s/values?token=%s&page_size=1", myid, _token);
+    while (!fona.HTTP_GET_start(url, &statuscode, (uint16_t *)&length)) {
+        Serial.println("Failed!");
+    }
+    while (length > 0){
+        while (fonaSS.available()) {
+            url[i] = fonaSS.read();
+            i++;
+            length=length-1;
+        }
+        delay(10);
+    }
+    char* pch = strstr(url,"\"value\":");
+    String raw(pch);
+    int bodyPosinit =9+ raw.indexOf("\"value\":");
+    int bodyPosend = raw.indexOf(", \"timestamp\"");
+    raw.substring(bodyPosinit,bodyPosend).toCharArray(url, 10);
+    num = atof(url);
+    free(url);
+    fona.HTTP_GET_end();
+    flushSerial();
+    return num;
 }
 void Ubidots::gprsOnFona() {
     setApn(_apn, _user, _pwd);
@@ -281,3 +322,41 @@ void Ubidots::flushSerial() {
     while (Serial.available())
     Serial.read();
 }
+bool Ubidots::httpTerm() {
+    if (!sendMessageAndwaitForOK("AT+HTTPTERM", 6000)) {
+        Serial.print("Error with AT+HTTPTERM");
+        return false;
+    }
+    return true;
+}
+bool Ubidots::httpInit(){
+    char message[3][50];
+    sprintf(message[0], "AT+HTTPINIT");
+    sprintf(message[1], "AT+HTTPPARA=\"CID\",1");
+    sprintf(message[2], "AT+HTTPPARA=\"UA\",\"%s/%s\"");
+    _client.println(F("AT+HTTPINIT"));
+    if(strstr(readData(1000),"OK")==NULL){
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPINIT. Reset the Arduino, will you?"));
+#endif
+        return false;
+    }
+    _client.println(F("AT+HTTPPARA=\"CID\",1"));
+    if(strstr(readData(1000),"OK")==NULL){
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPARA CID. Reset the Arduino, will you?"));
+#endif
+        return false;
+    }
+    _client.print(F("AT+HTTPPARA=\"UA\","));
+    _client.print(USER_AGENT);
+    _client.println(F("\""));
+    if(strstr(readData(1000),"OK")==NULL){
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT+HTTPARA USER_AGENT. Reset the Arduino, will you?"));
+#endif
+        return false;
+    }
+    return true;
+}
+
