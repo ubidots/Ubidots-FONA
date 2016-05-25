@@ -66,6 +66,10 @@ private:
     char buffer[DEFAULT_BUFFER_SIZE];
     uint8_t currentValue;
     Value * val;
+    // Variables to retro-compatibility
+    char* _apn;
+    char* _user;
+    char* _pwd;
 
 public:
     Ubidots(char* token, char* server = SERVER);
@@ -79,7 +83,7 @@ public:
     void turnOffFona();
     void turnOnFona();
     // Deprecated functions
-    void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
+    void gprsNetwork(char* apn, char* username, char* password);
     void saveValue(char* myid, float value);
     float getValue(char* myid);
     void flushSerial();

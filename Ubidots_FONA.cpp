@@ -263,17 +263,19 @@ void Ubidots::turnOffFona(){
 /* Deprecated functions
 * Next functions was deprecated at version 1.2 of Fona Library
 */
-void Ubidots::gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
-
+void Ubidots::gprsNetwork(char* apn, char* username, char* password) {
+    _apn = apn;
+    _user = username;
+    _pwd = password;
 }
 void Ubidots::saveValue(char* myid, float value) {
-    
+
 }
 float Ubidots::getValue(char* myid) {
 
 }
 void Ubidots::gprsOnFona() {
-
+    setApn(_apn, _user, _pwd);
 }
 void Ubidots::flushSerial() {
     while (Serial.available())
