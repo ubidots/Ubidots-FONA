@@ -70,6 +70,8 @@ private:
     char* _apn;
     char* _user;
     char* _pwd;
+    bool httpTerm();
+    bool httpInit();
 
 public:
     Ubidots(char* token, char* server = SERVER);
@@ -88,7 +90,7 @@ public:
     float getValue(char* myid);
     void flushSerial();
     void gprsOnFona();
-    bool httpTerm();
 };
-#endif
+#endif  // __Ubidots_FONA_H_
+
 

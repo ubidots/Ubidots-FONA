@@ -330,32 +330,17 @@ bool Ubidots::httpTerm() {
     return true;
 }
 bool Ubidots::httpInit(){
+    uint8_t i = 0;
     char message[3][50];
     sprintf(message[0], "AT+HTTPINIT");
     sprintf(message[1], "AT+HTTPPARA=\"CID\",1");
-    sprintf(message[2], "AT+HTTPPARA=\"UA\",\"%s/%s\"");
-    _client.println(F("AT+HTTPINIT"));
-    if(strstr(readData(1000),"OK")==NULL){
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPINIT. Reset the Arduino, will you?"));
-#endif
-        return false;
-    }
-    _client.println(F("AT+HTTPPARA=\"CID\",1"));
-    if(strstr(readData(1000),"OK")==NULL){
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPARA CID. Reset the Arduino, will you?"));
-#endif
-        return false;
-    }
-    _client.print(F("AT+HTTPPARA=\"UA\","));
-    _client.print(USER_AGENT);
-    _client.println(F("\""));
-    if(strstr(readData(1000),"OK")==NULL){
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+HTTPARA USER_AGENT. Reset the Arduino, will you?"));
-#endif
-        return false;
+    sprintf(message[2], "AT+HTTPPARA=\"UA\",\"%s /%s\"");
+    for (i = 0; i < 3; i++) {
+        if (!sendMessageAndwaitForOK(message[i], 6000)) {
+            Serial.print("Error with ");
+            Serial.println(message[i]);
+            return false;
+        }
     }
     return true;
 }
