@@ -41,7 +41,7 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define SERVER "translate.ubidots.com"
 #define PORT "9010"
 #define USER_AGENT "FONA"
-#define VERSION "1.1"
+#define VERSION "1.2"
 #define MAX_VALUES 5
 
 
