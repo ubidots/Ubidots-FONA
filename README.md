@@ -16,7 +16,6 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 * Arduino UNO
 * FONA
 * An active SIM card with a data plan
-* [Adafruit_FONA library](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) 
 * Ubidots_FONA library
 
 ## Pin Connections FONA -> Arduino
@@ -31,13 +30,12 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 ## Run the examples!
 
-1. Download the Adafruit_FONA library [here](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip).
-2. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.1.0.zip)
-3. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
-4. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
-5. Do the same to add the Adafruit_FONA library.
-6. Close the Arduino IDE and open it again.
-**Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in their library to make sure your FONA is working properly and is able to connect to your mobile network.**
+1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.1.0.zip)
+2. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
+3. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
+4. Do the same to add the Adafruit_FONA library.
+5. Close the Arduino IDE and open it again.
+**Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in [Adafruit FONA](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) library to make sure your FONA is working properly and is able to connect to your mobile network.**
 7. Now go to File -> Examples -> Ubidots FONA library and select getValue or saveValue examples
 6. Put your Ubidots token and variable ID
 7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
