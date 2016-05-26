@@ -15,7 +15,7 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 * Arduino UNO
 * FONA
-* An active SIM card with a data plan
+* An active SIM card **with a data plan**
 * Ubidots_FONA library
 
 ## Pin Connections FONA -> Arduino
@@ -32,10 +32,10 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.2.0.zip)
 2. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
-3. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
-4. Do the same to add the Adafruit_FONA library.
+3. Select the Ubidots_FONA .ZIP file and then "Accept" or "Choose"
+4. Do the same with the Adafruit_FONA library.
 5. Close the Arduino IDE and open it again.
-**Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in [Adafruit FONA](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) library to make sure your FONA is working properly and is able to connect to your mobile network.**
+**Before continuing, make sure your device can connect to the Internet! You can run Adafruit's example "FONAtest.ino" contained in [Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) library to make sure your FONA is working properly and is able to connect to your mobile network.**
 7. Now go to File -> Examples -> Ubidots FONA library and select one example.
 6. Put your Ubidots token and variable ID
 7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
@@ -49,9 +49,11 @@ If you're not sure how to add a library to the Arduino IDE please click [here](h
 
 You can contact support@ubidots.com for any inquiries, please specify your Mobile operator and provide the dump of the Serial Monitor for debugging purposes.
 
-## Send a value with latitude and longitude
+## Included Examples
 
-To send a value with latitude and longitude use the example **UbidotsSendValuesWithContext** or also you could copy the next code.
+### Send a value with latitude and longitude
+
+To send a value with latitude and longitude use the example **UbidotsSendValuesWithContext** or just copy the following code:
 
 ```c
 
