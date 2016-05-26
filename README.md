@@ -30,7 +30,7 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 ## Run the examples!
 
-1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.1.0.zip)
+1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.2.0.zip)
 2. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
 3. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
 4. Do the same to add the Adafruit_FONA library.
