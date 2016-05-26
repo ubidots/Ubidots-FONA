@@ -59,6 +59,7 @@ private:
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
     int readLine(uint32_t ts_max);
+    void begin();
     char* _token;
     char* _dsName;
     char* _dsTag;
@@ -67,7 +68,7 @@ private:
     uint8_t currentValue;
     Value * val;
     // Variables to retro-compatibility
-    char* _apn;
+    [[deprecated]] char* _apn;
     char* _user;
     char* _pwd;
     bool httpTerm();
@@ -76,7 +77,6 @@ private:
 
 public:
     Ubidots(char* token, char* server = SERVER);
-    void begin();
     void setDataSourceName(char *dsName);
     void setDataSourceTag(char *dsTag);
     void add(char *variable_id, float value, char *ctext1 = NULL);
