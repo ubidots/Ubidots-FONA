@@ -51,6 +51,8 @@ You can contact support@ubidots.com for any inquiries, please specify your Mobil
 
 ## Send a value with latitude and longitude
 
+To send a value with latitude and longitude use the example **UbidotsSendValuesWithContext** or also you could copy the next code.
+
 ```c
 
 #include <Ubidots_FONA.h>
@@ -89,7 +91,5 @@ void loop() {
     delay(5000);
 }
 ```
-
-To send a value with the possition of the sensor you can use the **UbidotsSendValuesWithContext** or also you could copy the next code.
 
 
