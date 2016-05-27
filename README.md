@@ -81,10 +81,10 @@ void loop() {
     sprintf(context, "lat=%s$lng=%s", char(1.1232), char(4323.123));
     // To send latitude and longitude to Ubidots and see it in a map widget
     // The format of the context is like this, you must send it like this example
-    sprintf(context_2, "Temperature=Value_Of_Temperature$Position=Value_Of_Position$Color=Value_Of_Color");
+    sprintf(context_2, "Color=RED$Position=Down$Quantity=3");
     // You can send multiple context in one variable, to send it you must add a "$" symbol between every context
-    client.add("Variable_Name_One", value1, context);  // Change for your variable name
-    client.add("Variable_Name_Two", value2,  context_2);
+    client.add("Temperature", value1, context);  // Change for your variable name
+    client.add("Humedity", value2,  context_2);
     client.sendAll();
     delay(5000);
 }
