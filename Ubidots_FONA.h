@@ -67,7 +67,6 @@ private:
     char buffer[DEFAULT_BUFFER_SIZE];
     uint8_t currentValue;
     Value * val;
-    bool checkFona();
     // Variables to retro-compatibility
     char* _apn;
     char* _user;
@@ -84,7 +83,7 @@ public:
     bool sendAll();
     float getValueWithDatasource(char* dsTag, char* idName);
     bool setApn(char* apn, char* user = "", char* pwd = "");
-    
+    bool checkFona();
     // Deprecated functions
     void turnOffFona();
     void turnOnFona();
