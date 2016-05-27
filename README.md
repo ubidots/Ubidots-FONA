@@ -91,9 +91,9 @@ void loop() {
 ```
 
 
-## Get value from a Ubidots variable
+## Get a value from a Ubidots variable
 
-To get a value you could use the example inside the library or copy the next code:
+To get a value you could use the example inside the library or copy the following code:
 
 ```c
 #include <Ubidots_FONA.h>
