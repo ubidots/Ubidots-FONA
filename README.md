@@ -15,8 +15,7 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 * Arduino UNO
 * FONA
-* An active SIM card with a data plan
-* [Adafruit_FONA library](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) 
+* An active SIM card **with a data plan**
 * Ubidots_FONA library
 
 ## Pin Connections FONA -> Arduino
@@ -31,14 +30,13 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 
 ## Run the examples!
 
-1. Download the Adafruit_FONA library [here](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip).
-2. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.1.0.zip)
-3. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
-4. Select the .ZIP file of Ubidots_FONA and then "Accept" or "Choose"
-5. Do the same to add the Adafruit_FONA library.
-6. Close the Arduino IDE and open it again.
-**Before continuing, make sure you have an active data plan! You can run Adafruit's example "FONAtest.ino" contained in their library to make sure your FONA is working properly and is able to connect to your mobile network.**
-7. Now go to File -> Examples -> Ubidots FONA library and select getValue or saveValue examples
+1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.2.0.zip)
+2. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
+3. Select the Ubidots_FONA .ZIP file and then "Accept" or "Choose"
+4. Do the same with the Adafruit_FONA library.
+5. Close the Arduino IDE and open it again.
+**Before continuing, make sure your device can connect to the Internet! You can run Adafruit's example "FONAtest.ino" contained in [Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) library to make sure your FONA is working properly and is able to connect to your mobile network.**
+7. Now go to File -> Examples -> Ubidots FONA library and select one example.
 6. Put your Ubidots token and variable ID
 7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
 8. Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
@@ -50,4 +48,50 @@ To manually install the libraries, copy the Ubidots_FONA folder contained in the
 If you're not sure how to add a library to the Arduino IDE please click [here](https://www.arduino.cc/en/Guide/Libraries) to see the steps as explained by Arduino.
 
 You can contact support@ubidots.com for any inquiries, please specify your Mobile operator and provide the dump of the Serial Monitor for debugging purposes.
+
+## Included Examples
+
+### Send a value with latitude and longitude
+
+To send a value with latitude and longitude use the example **UbidotsSendValuesWithContext** or just copy the following code:
+
+```c
+
+#include <Ubidots_FONA.h>
+#include <SoftwareSerial.h>
+
+
+#define APN  ""  // The APN of your operator
+#define USER ""  // if your apn doesnt have username just leave it ""
+#define PASS ""  // if your apn doesnt have password just leave it ""
+#define TOKEN "Your_Token_Here"  // Replace it with your Ubidots token
+
+Ubidots client(TOKEN);
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+  client.setApn(APN, USER, PASS);
+}
+void loop() {
+    float value1 = analogRead(A0);
+    float value2 = analogRead(A1);
+    float value3 = analogRead(A2);
+    char context[25];
+    char context_2[25];
+    char context_3[45];
+    sprintf(context, "lat=%s$lng=%s");
+    // To send latitude and longitude to Ubidots and see it in a map widget
+    sprintf(context_2, "Name_Of_Context=Value_Of_Context");
+    // The format of the context is like this, you must send it like this example
+    sprintf(context_3, "Name_Of_Context=Value_Of_Context$Name_Of_Context_2=Value_Of_Context_2$Name_Of_Context_3=Value_Of_Context_3");
+    // You can send multiple context in one variable, to send it you must add a "$" symbol between every context
+    ubidots.add("Variable_Name_One", value1, context);  // Change for your variable name
+    ubidots.add("Variable_Name_Two", value2, context_2);
+    ubidots.add("Variable_Name_Three", value3,  context_3);
+    ubidots.sendAll();
+    delay(5000);
+}
+```
+
 
