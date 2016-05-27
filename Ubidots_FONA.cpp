@@ -20,18 +20,40 @@ Ubidots::Ubidots(char* token, char* server){
     _dsTag = "FONA";
     currentValue = 0;
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
-    fonaSS.begin(4800);
-    begin();
 }
 
-void Ubidots::begin() {
+bool Ubidots::begin() {
     pinMode(FONA_RST, OUTPUT);
     digitalWrite(FONA_RST, HIGH);
-    delay(10);
+    delay(500);
     digitalWrite(FONA_RST, LOW);
-    delay(100);
+    delay(500);
     digitalWrite(FONA_RST, HIGH);
     delay(500);
+    Serial.println(F("Attempting to open comm with ATs"));
+    int16_t timeout = 10000;
+    while (timeout > 0) {
+        while (fonaSS.available()) Serial.println(fonaSS.read());
+        if (sendMessageAndwaitForOK("AT"))
+            break;
+        while (fonaSS.available()) Serial.println(fonaSS.read());
+        fonaSS.println("AT");
+        if (waitForMessage("AT", 5000)) 
+            break;
+        delay(500);
+        timeout-=500;
+    }
+    if (timeout <= 0) {
+        Serial.println(F("Timeout: No response to AT... last ditch attempt."));
+        sendMessageAndwaitForOK("AT");
+        delay(100);
+        sendMessageAndwaitForOK("AT");
+        delay(100);
+        sendMessageAndwaitForOK("AT");
+        delay(100);
+    }
+    sendMessageAndwaitForOK("ATE0");
+    delay(100);
 }
 
 void Ubidots::setDataSourceName(char* dsName) {
@@ -72,6 +94,7 @@ bool Ubidots::sendMessageAndwaitForOK(char* message, uint16_t timeout) {
 }
 
 bool Ubidots::setApn(char* apn, char* user, char* pwd) {
+    checkFona();
     int i = 0;
     char message[10][50];
     sprintf(message[0], "AT");
@@ -196,45 +219,35 @@ bool Ubidots::waitForMessage(const char *msg, uint32_t ts_max) {
     }
     return false;         // This indicates: timed out
 }
-int Ubidots::readLine(uint32_t ts_max) {
-    uint32_t ts_waitLF = 0;
-    bool seenCR = false;
-    int c;
-    size_t bufcnt;
-    bufcnt = 0;
-    while (!isTimedOut(ts_max)) {
-        wdt_reset();
-        if (seenCR) {
-            c = fonaSS.peek();
-            // ts_waitLF is guaranteed to be non-zero
-            if ((c == -1 && isTimedOut(ts_waitLF)) || (c != -1 && c != '\n')) {
-                // Line ended with just <CR>. That's OK too.
-                goto ok;
+int Ubidots::readLine(uint32_t ts_max, bool multiline) {
+    int replyidx = 0;
+    while (ts_max--) {
+        if (replyidx >= 254) {
+            break;
+        }
+        while(fonaSS.available()) {
+            char c =  fonaSS.read();
+            Serial.print(c);
+            if (c == '\r') continue;
+            if (c == 0xA) {
+            if (replyidx == 0)   // the first 0x0A is ignored
+                continue;
             }
-      // Only \n should fall through
-        }
-        c = fonaSS.read();
-        if (c < 0) {
-            continue;
-        }
-        Serial.print((char)c);                 // echo the char
-        seenCR = c == '\r';
-        if (c == '\r') {
-            ts_waitLF = millis() + 50;        // Wait another .05 sec for an optional LF
-        } else if (c == '\n') {
-            goto ok;
-        } else {
-            // Any other character is stored in the line buffer
-            if (bufcnt < (DEFAULT_BUFFER_SIZE - 1)) {    // Leave room for the terminating NUL
-                buffer[bufcnt++] = c;
+            if (!multiline) {
+                ts_max = 0;         // the second 0x0A is the end of the line
+                break;
             }
+            buffer[replyidx] = c;
+            replyidx++;
         }
+        if (ts_max == 0) {
+            break;
+        }
+        delay(1);
     }
-    Serial.println(F("readLine timed out"));
-    return -1;            // This indicates: timed out
-    ok:
-    buffer[bufcnt] = 0;     // Terminate with NUL byte
-    return bufcnt;
+    buffer[replyidx] = 0;  // null term
+    Serial.println(buffer);
+    return replyidx;
 }
 
 void Ubidots::turnOnFona(){
@@ -265,6 +278,7 @@ void Ubidots::turnOffFona(){
 */
 
 void Ubidots::gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
+    checkFona();
     _apn = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(apn));
     _user = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(username));
     _pwd = reinterpret_cast<char*>(const_cast<__FlashStringHelper*>(password));
@@ -389,6 +403,7 @@ float Ubidots::getValue(char* myid) {
     }
 }
 void Ubidots::gprsOnFona() {
+    checkFona();
     setApn(_apn, _user, _pwd);
 }
 void Ubidots::flushSerial() {
@@ -430,10 +445,13 @@ void Ubidots::flushInput() {
     }
 }
 
-bool Ubidots::checkFona(){
-     if (!sendMessageAndwaitForOK("ATE0", 6000)) {
+bool Ubidots::checkFona() {
+    fonaSS.begin(4800);
+    void begin();
+    if (!sendMessageAndwaitForOK("ATE0", 6000)) {
         Serial.print("Couldn't find FONA");
         return false;
+        while (1);
     }
     return true;
 }
