@@ -55,11 +55,11 @@ typedef struct Value {
 class Ubidots{
 private:
     SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-    bool sendMessageAndwaitForOK(char* message, uint16_t timeout=4000);
+    bool sendMessageAndwaitForOK(char* message, uint16_t timeout = 4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
-    int readLine(uint32_t ts_max);
-    void begin();
+    int readLine(uint32_t ts_max, bool multiline = false);
+    bool begin();
     char* _token;
     char* _dsName;
     char* _dsTag;
@@ -83,15 +83,16 @@ public:
     bool sendAll();
     float getValueWithDatasource(char* dsTag, char* idName);
     bool setApn(char* apn, char* user = "", char* pwd = "");
+    bool checkFona();
+    // Deprecated functions
     void turnOffFona();
     void turnOnFona();
-    // Deprecated functions
     void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
     bool saveValue(char* myid, float value);
     float getValue(char* myid);
     void flushSerial();
     void gprsOnFona();
-    bool checkFona();
+    
 };
 #endif  // __Ubidots_FONA_H_
 
