@@ -24,8 +24,8 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 
 */
 
-#ifndef __Ubidots_FONA_H_
-#define __Ubidots_FONA_H_
+#ifndef __UbidotsFONA_H_
+#define __UbidotsFONA_H_
 #define DEBUG_UBIDOTS
 
 #include <SoftwareSerial.h>
@@ -36,29 +36,27 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define FONA_RX 2
 #define FONA_TX 3
 #define FONA_RST 4
-#define FONA_KEY 7
-#define FONA_PS 8
 #define SERVER "translate.ubidots.com"
 #define PORT "9010"
 #define USER_AGENT "FONA"
 #define VERSION "1.2"
 #define MAX_VALUES 5
 
-
 typedef struct Value {
-    char  *idName;
-    char  *contextOne;
-    float idValue;
+    char  *varName;
+    char  *ctext;
+    float varValue;
 } Value;
 
+class Ubidots {
 
-class Ubidots{
-private:
+ private:
     SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
     bool sendMessageAndwaitForOK(char* message, uint16_t timeout = 4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
     int readLine(uint32_t ts_max, bool multiline = false);
+    char* readData(uint16_t timeout);
     bool begin();
     char* _token;
     char* _dsName;
@@ -71,11 +69,9 @@ private:
     char* _apn;
     char* _user;
     char* _pwd;
-    bool httpTerm();
-    bool httpInit();
-    void flushInput();
 
-public:
+ public:
+
     Ubidots(char* token, char* server = SERVER);
     void setDataSourceName(char *dsName);
     void setDataSourceTag(char *dsTag);
@@ -85,15 +81,8 @@ public:
     bool setApn(char* apn, char* user = "", char* pwd = "");
     bool checkFona();
     // Deprecated functions
-    void turnOffFona();
-    void turnOnFona();
-    void gprsNetwork(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password);
-    bool saveValue(char* myid, float value);
-    float getValue(char* myid);
     void flushSerial();
     void gprsOnFona();
-    
 };
+
 #endif  // __Ubidots_FONA_H_
-
-
