@@ -6,6 +6,8 @@
 #define USER ""  // if your apn doesnt have username just leave it ""
 #define PASS ""  // if your apn doesnt have password just leave it ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
+#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
+
 
 Ubidots client(TOKEN);  
   
@@ -16,11 +18,7 @@ void setup() {
 }
 
 void loop() {
-  float value1 = analogRead(A0);
-  float value2 = analogRead(A1);
-  float value3 = analogRead(A2);
-  client.add("Variable_Label_1", value1);
-  client.add("Variable_Label_2", value2);
-  client.add("Variable_Label_3", value3);
-  client.sendAll();
+  float value = client.getValueWithDatasource("Data_Source_Label", "Variable_Label");
+  delay(1000); 
+  Serial.println(value);
 }

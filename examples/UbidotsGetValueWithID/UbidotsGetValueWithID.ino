@@ -18,7 +18,7 @@ void setup() {
 }
 
 void loop() {
-  float value = client.getValue(ID);  
+  float value = client.getValueWithDatasource("Data_Source_Label", "Variable_Label");
   delay(1000); 
   Serial.println(value);
 }

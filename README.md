@@ -57,7 +57,7 @@ To send a value with latitude and longitude use the example **UbidotsSendValuesW
 
 ```c
 
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
@@ -96,7 +96,7 @@ void loop() {
 To get a value you could use the example inside the library or copy the following code:
 
 ```c
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
