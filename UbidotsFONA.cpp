@@ -381,22 +381,6 @@ void Ubidots::gprsOnFona() {
     checkFona();
     setApn(_apn, _user, _pwd);
 }
-void Ubidots::flushSerial() {
-    while (Serial.available())
-    Serial.read();
-}
-
-void Ubidots::flushInput() {
-    // Read all available serial input to flush pending data.
-    uint16_t timeoutloop = 0;
-    while (timeoutloop++ < 40) {
-        while (Serial.available()) {
-            Serial.read();
-            timeoutloop = 0;  // If char was received reset the timer
-        }
-        delay(1);
-    }
-}
 
 bool Ubidots::checkFona() {
     fonaSS.begin(4800);

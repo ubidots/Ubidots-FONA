@@ -81,7 +81,6 @@ class Ubidots {
     bool setApn(char* apn, char* user = "", char* pwd = "");
     bool checkFona();
     // Deprecated functions
-    void flushSerial();
     void gprsOnFona();
 };
 
