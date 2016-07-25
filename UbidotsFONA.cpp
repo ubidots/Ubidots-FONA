@@ -102,7 +102,7 @@ bool Ubidots::sendMessageAndwaitForOK(char* message, uint16_t timeout) {
     fonaSS.println(message);
     if (strstr(readData(timeout), "OK") == NULL) {
 #ifdef DEBUG_UBIDOTS
-            Serial.println(F("Error sending variables"));
+            Serial.println(F("Error"));
 #endif
             return false;
         }
@@ -113,6 +113,13 @@ bool Ubidots::setApn(char* apn, char* user, char* pwd) {
     checkFona();
     fonaSS.println(F("AT"));
     if (strstr(readData(2000), "OK") == NULL) {
+#ifdef DEBUG_UBIDOTS
+        Serial.println(F("Error with AT"));
+#endif
+        return false;
+    }
+    fonaSS.println(F("AT+CREG?"));
+    if (strstr(readData(2000), "+CREG:") == NULL) {
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT"));
 #endif
@@ -316,7 +323,7 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
 #endif
         return false;
     }
-    fonaSS.write(allData.c_str());
+    fonaSS.println(allData);
     response = String(readData(4000));
     Serial.println(response);
     fonaSS.println(F("AT+CIPCLOSE"));
@@ -384,10 +391,8 @@ void Ubidots::gprsOnFona() {
 
 bool Ubidots::checkFona() {
     fonaSS.begin(4800);
-    Serial.println("Pase FONASss");
     delay(2000);
     begin();
-    Serial.println("Pase begin");
     if (!sendMessageAndwaitForOK("ATE0", 6000)) {
         Serial.print("Couldn't find FONA");
         while (1) {
@@ -395,13 +400,16 @@ bool Ubidots::checkFona() {
         }
         return false;
     }
-    Serial.println("Sali check");
     return true;
 }
 
 char* Ubidots::readData(uint16_t timeout) {
     uint16_t replyidx = 0;
     char replybuffer[254];
+    int secconds = 0;
+    while (!fonaSS.available() && secconds < timeout) {
+        secconds++;
+    }
     while (timeout--) {
         if (replyidx >= 254) {
             break;
@@ -416,15 +424,18 @@ char* Ubidots::readData(uint16_t timeout) {
             replybuffer[replyidx] = c;
             replyidx++;
         }
+        while (!fonaSS.available() && timeout > 0) {
+            timeout--;
+            delay(1);
+        }
 
         if (timeout == 0) {
             if (fonaSS.available()) {
-                timeout = 5000;
+                timeout = 1000;
             } else {
                 break;
             }
         }
-        delay(1);
     }
     replybuffer[replyidx] = '\0';  // null term
 #ifdef DEBUG_UBIDOTS
