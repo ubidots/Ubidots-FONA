@@ -1,4 +1,4 @@
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
@@ -12,7 +12,7 @@ Ubidots client(TOKEN);
 void setup() {
   Serial.begin(115200);
   delay(2000);
-  client.setApn(APN, USER, PASS);
+  while(!client.setApn(APN, USER, PASS));
 }
 
 void loop() {

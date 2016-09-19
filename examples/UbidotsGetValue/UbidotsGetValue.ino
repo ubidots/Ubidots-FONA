@@ -1,4 +1,4 @@
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
@@ -14,11 +14,11 @@ Ubidots client(TOKEN);
 void setup() {
   Serial.begin(115200);
   delay(2000);
-  client.setApn(APN, USER, PASS);
+  while(!client.setApn(APN, USER, PASS));
 }
 
 void loop() {
-  float value = analogRead(A0);  // Reading analog pin A0
-  client.saveValue(ID, value);
-  delay(1000);
+  float value = client.getValueWithDatasource("Data_Source_Label", "Variable_Label");
+  delay(1000); 
+  Serial.println(value);
 }

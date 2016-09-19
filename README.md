@@ -1,6 +1,7 @@
 # Ubidots FONA Library 
 
 **This library requires Arduino v1.6.0 or higher**
+**This version is not compatible with 1.2 version of the library**
 
 This is a library for the Adafruit FONA Cellular GSM Breakouts:
 
@@ -25,18 +26,18 @@ These modules use TTL Serial to communicate, so at least 2 pins are required to 
 * FONA_RX –> Pin 2
 * FONA_TX –> Pin 3
 * FONA_RST –> Pin 4
-* FONA_KEY –> Pin 7
-* FONA_PS –> Pin 8
+* FONA_KEY –> GND
+
 
 ## Run the examples!
 
-1. Download the Ubidots_FONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.2.0.zip)
+1. Download the UbidotsFONA library [here](https://github.com/ubidots/Ubidots-FONA/archive/1.2.0.zip)
 2. Go to the Arduino IDE, click on Sketch -> Include Library -> Add .ZIP Library
-3. Select the Ubidots_FONA .ZIP file and then "Accept" or "Choose"
+3. Select the UbidotsFONA .ZIP file and then "Accept" or "Choose"
 4. Do the same with the Adafruit_FONA library.
 5. Close the Arduino IDE and open it again.
 **Before continuing, make sure your device can connect to the Internet! You can run Adafruit's example "FONAtest.ino" contained in [Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA_Library/archive/1.3.0.zip) library to make sure your FONA is working properly and is able to connect to your mobile network.**
-7. Now go to File -> Examples -> Ubidots FONA library and select one example.
+7. Now go to **File -> Examples -> UbidotsFONA** library and select one example.
 6. Put your Ubidots token and variable ID
 7. Put your mobile operator's APN settings (APN, USER, PASSWORD). You should be able to easily find your operator's APN settings on Google or in the operator's website.
 8. Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
@@ -57,7 +58,7 @@ To send a value with latitude and longitude use the example **UbidotsSendValuesW
 
 ```c
 
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
@@ -96,15 +97,15 @@ void loop() {
 To get a value you could use the example inside the library or copy the following code:
 
 ```c
-#include <Ubidots_FONA.h>
+#include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
 
 #define APN  ""  // The APN of your operator
 #define USER ""  // if your apn doesnt have username just leave it ""
 #define PASS ""  // if your apn doesnt have password just leave it ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
+#define TOKEN "Your_Token_Here"  // Replace it with your Ubidots token
+#define ID "Your_Id_Here" // Replace it with your Ubidots' variable ID
 
 
 Ubidots client(TOKEN);  
@@ -116,7 +117,7 @@ void setup() {
 }
 
 void loop() {
-  float value = client.getValue(ID);  
+  float value = client.getValueWithDatasource("Data_Source_Label", "Variable_Label");  
   delay(1000); 
   Serial.println(value);
 }
