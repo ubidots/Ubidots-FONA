@@ -1,16 +1,15 @@
 #include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
 
-
-#define APN  ""  // The APN of your operator
+#define APN  "xxxxxxxxxx"  // The APN of your operator
 #define USER ""  // if your apn doesnt have username just leave it ""
 #define PASS ""  // if your apn doesnt have password just leave it ""
 #define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define ID "Your_id_here" // Replace it with your Ubidots' variable ID
+#define DEVICE_LABEL "Your_device_label" // Replace it with your Ubidots Device Label
+#define VARIABLE_LABEL "Your_variable_label" // Replace it with your Ubidots Variable Label
 
+Ubidots client(TOKEN);
 
-Ubidots client(TOKEN);  
-  
 void setup() {
   Serial.begin(115200);
   delay(2000);
@@ -18,7 +17,8 @@ void setup() {
 }
 
 void loop() {
-  float value = client.getValueWithDatasource("Data_Source_Label", "Variable_Label");
-  delay(1000); 
+  float value = client.getValue(DEVICE_LABEL, VARIABLE_LABEL);
+  delay(1000);
+  Serial.print("The last value is: ");
   Serial.println(value);
 }

@@ -1,14 +1,14 @@
+
 #include <UbidotsFONA.h>
 #include <SoftwareSerial.h>
-
 
 #define APN  "xxxxxxxxxx"  // The APN of your operator
 #define USER ""  // if your apn doesnt have username just leave it ""
 #define PASS ""  // if your apn doesnt have password just leave it ""
-#define TOKEN "Your_token_here"  // Replace it with your Ubidots token
-#define VARIABLE_LABEL_1 "temperature" // Replace it with your Ubidots variable label
-#define VARIABLE_LABEL_2 "humidity" // Replace it with your Ubidots variable label
-#define VARIABLE_LABEL_3 "pressure" // Replace it with your Ubidots variable label
+#define TOKEN "Your_Token_Here"  // Replace it with your Ubidots token
+#define VARIABLE_LABEL "temperature" // Replace it with your Ubidots variable label
+
+unsigned long timestamp = 1509537600;
 
 Ubidots client(TOKEN);
 
@@ -19,13 +19,10 @@ void setup() {
   //client.setDeviceLabel("new_device_label"); // uncomment this line to assign a different device label
   while(!client.setApn(APN, USER, PASS));
 }
-
 void loop() {
-  float value1 = analogRead(A0);
-  float value2 = analogRead(A1);
-  float value3 = analogRead(A2);
-  client.add(VARIABLE_LABEL_1, value1);
-  client.add(VARIABLE_LABEL_2, value2);
-  client.add(VARIABLE_LABEL_3, value3);
-  client.sendAll();
+    float value = analogRead(A0);
+    client.add(VARIABLE_LABEL, 1.00 , timestamp);
+    timestamp = timestamp + 5000;
+    client.sendAll();
+    delay(5000);
 }
