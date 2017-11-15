@@ -40,7 +40,7 @@ Modified and Maintened by: María Carlina Hernández ---- Developer at Ubidots I
 #define SERVER "translate.ubidots.com"
 #define PORT "9012"
 #define USER_AGENT "FONA"
-#define VERSION "2.1"
+#define VERSION "3.0"
 #define MAX_VALUES 5
 
 typedef struct Value {
