@@ -13,12 +13,12 @@ Ubidots client(TOKEN);
 void setup() {
   Serial.begin(115200);
   delay(2000);
+  client.setDebug(true); // comment this line to set DEBUG off
   while(!client.setApn(APN, USER, PASS));
 }
 
 void loop() {
   float value = client.getValue(DEVICE_LABEL, VARIABLE_LABEL);
-  delay(1000);
   Serial.print("The last value is: ");
   Serial.println(value);
 }

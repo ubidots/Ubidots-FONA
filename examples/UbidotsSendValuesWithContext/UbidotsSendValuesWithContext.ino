@@ -14,6 +14,7 @@ Ubidots client(TOKEN);
 void setup() {
   Serial.begin(115200);
   delay(2000);
+  client.setDebug(true); // comment this line to set DEBUG off
   //client.setDeviceName("new_device_name"); // uncomment this line to assign a different device name
   //client.setDeviceLabel("new_device_label"); // uncomment this line to assign a different device label
   while(!client.setApn(APN, USER, PASS));
@@ -25,6 +26,7 @@ void loop() {
     // To send latitude and longitude to Ubidots and see it in a map widget
     sprintf(context, "lat=%s$lng=%s", lat, lng);
     client.add(VARIABLE_LABEL, 1.00 , context);
-    client.sendAll();
-    delay(5000);
+    if(client.sendAll()){
+      Serial.println("values sent properly");
+    }
 }

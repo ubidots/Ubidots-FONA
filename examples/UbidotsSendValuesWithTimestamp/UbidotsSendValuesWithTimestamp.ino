@@ -15,6 +15,7 @@ Ubidots client(TOKEN);
 void setup() {
   Serial.begin(115200);
   delay(2000);
+  client.setDebug(true); // comment this line to set DEBUG off
   //client.setDeviceName("new_device_name"); // uncomment this line to assign a different device name
   //client.setDeviceLabel("new_device_label"); // uncomment this line to assign a different device label
   while(!client.setApn(APN, USER, PASS));
