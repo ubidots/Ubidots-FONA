@@ -230,7 +230,7 @@ bool Ubidots::sendAll() {
     }
 
     for (i = 0; i < _currentValue; ) {
-        dtostrf(((val+i)->varValue), 4, 4, str_values);
+        dtostrf(((val+i)->varValue), 6, 2, str_values);
         sprintf(allData, "%s%s:%s", allData, (val + i)->varName, str_values);
 
         if ((val + i)->timestamp_val != NULL) {
