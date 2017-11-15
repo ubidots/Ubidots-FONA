@@ -27,7 +27,6 @@ Modified and Maintened by: María Carlina Hernández ---- Developer at Ubidots I
 
 #ifndef __UbidotsFONA_H_
 #define __UbidotsFONA_H_
-#define DEBUG_UBIDOTS
 
 #include <SoftwareSerial.h>
 #include <stdlib.h>
@@ -53,6 +52,7 @@ typedef struct Value {
 class Ubidots {
 
  private:
+    bool _debug = false;
     bool sendMessageAndwaitForOK(char* message, uint16_t timeout = 4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
@@ -85,6 +85,7 @@ class Ubidots {
     void add(char *variable_label, double value, char *ctext);
     void add(char *variable_label, double value, unsigned long timestamp_val);
     void add(char *variable_label, double value, char *ctext, unsigned long timestamp);
+    void setDebug(bool debug);
     void setDeviceName(char *device_name);
     void setDeviceLabel(char *device_label);
     float getValue(char* device_label, char* variable_label);

@@ -89,9 +89,9 @@ bool Ubidots::begin() {
 bool Ubidots::sendMessageAndwaitForOK(char* message, uint16_t timeout) {
     fonaSS.println(message);
     if (strstr(readData(timeout), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
+        if (_debug) {
             Serial.println(F("Error"));
-#endif
+        }
             return false;
         }
     return true;
@@ -101,78 +101,78 @@ bool Ubidots::setApn(char* apn, char* user, char* pwd) {
     checkFona();
     fonaSS.println(F("AT"));
     if (strstr(readData(2000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CREG?"));
     if (strstr(readData(2000), "+CREG:") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CSQ"));
     if (strstr(readData(2000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CSQ"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CSQ"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CGATT?"));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CGATT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CGATT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR CONTYPE"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR CONTYPE"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"APN\",\""));
     fonaSS.print(apn);
     fonaSS.println(F("\""));
     if (strstr(readData(3000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR APN"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR APN"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"USER\",\""));
     fonaSS.print(user);
     fonaSS.println(F("\""));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR USER"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR USER"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"PWD\",\""));
     fonaSS.print(pwd);
     fonaSS.println("\"");
     if (strstr(readData(3000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR PASSWORD"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR PASSWORD"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=1,1"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR=1,1 Connection ip"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR=1,1 Connection ip"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=2,1"));
     if (strstr(readData(4000), "+SAPBR:") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR=2,1 no IP to show"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR=2,1 no IP to show"));
+        }
         return false;
     }
     return true;
@@ -251,9 +251,9 @@ bool Ubidots::sendAll() {
 
     fonaSS.println(F("AT+CIPMUX=0"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPMUX"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPMUX"));
+        }
         _currentValue = 0;
         return false;
     }
@@ -263,42 +263,42 @@ bool Ubidots::sendAll() {
     fonaSS.print(PORT);
     fonaSS.println(F("\""));
     if (strstr(readData(4000), "CONNECT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSTART"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSTART"));
+        }
         _currentValue = 0;
         return false;
     }
     fonaSS.print(F("AT+CIPSEND="));
     fonaSS.println(dataLen(allData));
     if (strstr(readData(4000), ">") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSEND"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSEND"));
+        }
         _currentValue = 0;
         return false;
     }
     fonaSS.write(allData);
     if (strstr(readData(4000), "SEND OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error sending variables"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error sending variables"));
+        }
         _currentValue = 0;
         return false;
     }
     fonaSS.println(F("AT+CIPCLOSE"));
     if (strstr(readData(4000), "CLOSE OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPCLOSE"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPCLOSE"));
+        }
         _currentValue = 0;
         return false;
     }
     fonaSS.println(F("AT+CIPSHUT"));
     if (strstr(readData(4000), "SHUT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSHUT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSHUT"));
+        }
         _currentValue = 0;
         return false;
     }
@@ -328,9 +328,9 @@ float Ubidots::getValue(char* device_label, char* variable_label) {
 
     fonaSS.println(F("AT+CIPMUX=0"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPMUX"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPMUX"));
+        }
         return false;
     }
     fonaSS.print(F("AT+CIPSTART=\"TCP\",\""));
@@ -339,17 +339,17 @@ float Ubidots::getValue(char* device_label, char* variable_label) {
     fonaSS.print(PORT);
     fonaSS.println(F("\""));
     if (strstr(readData(4000), "CONNECT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSTART"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSTART"));
+        }
         return false;
     }
     fonaSS.print(F("AT+CIPSEND="));
     fonaSS.println(dataLen(allData));
     if (strstr(readData(4000), ">") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSEND"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSEND"));
+        }
         return false;
     }
     fonaSS.println(allData);
@@ -357,7 +357,9 @@ float Ubidots::getValue(char* device_label, char* variable_label) {
     response = strtok(resp, "|");
     serverResponse = response;
     while (response!=NULL) {
-        printf("%s\n", response);
+        if (_debug) {
+            printf("%s\n", response);
+        }
         response = strtok(NULL, "|");
         if (response != NULL) {
             serverResponse = response;
@@ -367,16 +369,16 @@ float Ubidots::getValue(char* device_label, char* variable_label) {
 
     fonaSS.println(F("AT+CIPCLOSE"));
     if (strstr(readData(4000), "CLOSE OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error sending data"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error sending data"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CIPSHUT"));
     if (strstr(readData(4000), "SHUT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSHUT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSHUT"));
+        }
         return false;
     }
     free(allData);
@@ -451,7 +453,13 @@ int Ubidots::dataLen(char* variable) {
   return dataLen;
 }
 
-
+/**
+ * Turns on or off debug messages
+ * @debug is a bool flag to activate or deactivate messages
+ */
+void Ubidots::setDebug(bool debug) {
+  _debug = debug;
+}
 // ------------------------------------------------------------------
 // -------------------------WARNING----------------------------------
 // ------------------------------------------------------------------
@@ -513,9 +521,9 @@ char* Ubidots::readData(uint16_t timeout) {
         }
     }
     replybuffer[replyidx] = '\0';  // null term
-#ifdef DEBUG_UBIDOTS
-    Serial.println("Response of FONA:");
-    Serial.println(replybuffer);
-#endif
+    if (_debug) {
+        Serial.println("Response of FONA:");
+        Serial.println(replybuffer);
+    }
     return replybuffer;
 }
