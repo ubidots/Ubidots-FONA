@@ -20,13 +20,13 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Made by Mateo Velez - Metavix for Ubidots Inc
-
+Original Maker: Mateo Velez - Metavix for Ubidots Inc
+Modified and Maintened by: María Carlina Hernández ---- Developer at Ubidots Inc
+                           https://github.com/mariacarlinahernandez
 */
 
 #ifndef __UbidotsFONA_H_
 #define __UbidotsFONA_H_
-#define DEBUG_UBIDOTS
 
 #include <SoftwareSerial.h>
 #include <stdlib.h>
@@ -37,33 +37,38 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define FONA_TX 3
 #define FONA_RST 4
 #define SERVER "translate.ubidots.com"
-#define PORT "9010"
+#define PORT "9012"
 #define USER_AGENT "FONA"
-#define VERSION "2.0"
+#define VERSION "3.0"
 #define MAX_VALUES 5
 
 typedef struct Value {
     char  *varName;
     char  *ctext;
     float varValue;
+    unsigned long timestamp_val;
 } Value;
 
 class Ubidots {
 
  private:
-    SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+    bool _debug = false;
     bool sendMessageAndwaitForOK(char* message, uint16_t timeout = 4000);
     bool waitForMessage(const char *msg, uint32_t ts_max);
     bool isTimedOut(uint32_t ts) { return (long)(millis() - ts) >= 0; }
-    int readLine(uint32_t ts_max, bool multiline = false);
-    char* readData(uint16_t timeout);
     bool begin();
+    char* readData(uint16_t timeout);
     char* _token;
     char* _dsName;
     char* _dsTag;
+    char* _device_label;
+    char* _device_name;
     char* _server;
     char buffer[DEFAULT_BUFFER_SIZE];
-    uint8_t currentValue;
+    int readLine(uint32_t ts_max, bool multiline = false);
+    int dataLen(char* variable);
+    SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
+    uint8_t _currentValue;
     Value * val;
     // Variables to retro-compatibility
     char* _apn;
@@ -73,13 +78,17 @@ class Ubidots {
  public:
 
     Ubidots(char* token, char* server = SERVER);
-    void setDataSourceName(char *dsName);
-    void setDataSourceTag(char *dsTag);
-    void add(char *variable_id, float value, char *ctext1 = NULL);
-    bool sendAll();
-    float getValueWithDatasource(char* dsTag, char* idName);
-    bool setApn(char* apn, char* user = "", char* pwd = "");
     bool checkFona();
+    bool setApn(char* apn, char* user = "", char* pwd = "");
+    bool sendAll();
+    void add(char *variable_label, double value);
+    void add(char *variable_label, double value, char *ctext);
+    void add(char *variable_label, double value, unsigned long timestamp_val);
+    void add(char *variable_label, double value, char *ctext, unsigned long timestamp);
+    void setDebug(bool debug);
+    void setDeviceName(char *device_name);
+    void setDeviceLabel(char *device_label);
+    float getValue(char* device_label, char* variable_label);
     // Deprecated functions
     void gprsOnFona();
 };

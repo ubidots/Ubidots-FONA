@@ -20,7 +20,9 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Made by Mateo Velez - Metavix for Ubidots Inc
+Original Maker: Mateo Velez - Metavix for Ubidots Inc
+Modified and Maintened by: María Carlina Hernández ---- Developer at Ubidots Inc
+                           https://github.com/mariacarlinahernandez
 
 */
 
@@ -38,16 +40,20 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 
 /**
  * Constructor.
+ * Default device label is "FONA"
  */
-
 Ubidots::Ubidots(char* token, char* server) {
     _token = token;
     _server = server;
-    _dsName = NULL;
-    _dsTag = "FONA";
-    currentValue = 0;
+    _device_name = NULL;
+    _device_label = "FONA";
+    _currentValue = 0;
     val = (Value *)malloc(MAX_VALUES*sizeof(Value));
 }
+
+/***************************************************************************
+FONA MODULE FUNCTIONS
+***************************************************************************/
 
 bool Ubidots::begin() {
     pinMode(FONA_RST, OUTPUT);
@@ -80,30 +86,12 @@ bool Ubidots::begin() {
     return true;
 }
 
-void Ubidots::setDataSourceName(char* dsName) {
-    _dsName = dsName;
-}
-
-void Ubidots::setDataSourceTag(char* dsTag) {
-    _dsTag = dsTag;
-}
-
-void Ubidots::add(char *variable_id, float value, char *ctext1) {
-    (val+currentValue)->varName = variable_id;
-    (val+currentValue)->ctext = ctext1;
-    (val+currentValue)->varValue = value;
-    currentValue++;
-    if (currentValue > MAX_VALUES) {
-        currentValue = MAX_VALUES;
-    }
-}
-
 bool Ubidots::sendMessageAndwaitForOK(char* message, uint16_t timeout) {
     fonaSS.println(message);
     if (strstr(readData(timeout), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
+        if (_debug) {
             Serial.println(F("Error"));
-#endif
+        }
             return false;
         }
     return true;
@@ -113,123 +101,160 @@ bool Ubidots::setApn(char* apn, char* user, char* pwd) {
     checkFona();
     fonaSS.println(F("AT"));
     if (strstr(readData(2000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CREG?"));
     if (strstr(readData(2000), "+CREG:") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CSQ"));
     if (strstr(readData(2000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CSQ"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CSQ"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CGATT?"));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CGATT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CGATT"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\""));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR CONTYPE"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR CONTYPE"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"APN\",\""));
     fonaSS.print(apn);
     fonaSS.println(F("\""));
     if (strstr(readData(3000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR APN"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR APN"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"USER\",\""));
     fonaSS.print(user);
     fonaSS.println(F("\""));
     if (strstr(readData(10000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR USER"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR USER"));
+        }
         return false;
     }
     fonaSS.print(F("AT+SAPBR=3,1,\"PWD\",\""));
     fonaSS.print(pwd);
     fonaSS.println("\"");
     if (strstr(readData(3000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR PASSWORD"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR PASSWORD"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=1,1"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR=1,1 Connection ip"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR=1,1 Connection ip"));
+        }
         return false;
     }
     fonaSS.println(F("AT+SAPBR=2,1"));
     if (strstr(readData(4000), "+SAPBR:") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+SAPBR=2,1 no IP to show"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+SAPBR=2,1 no IP to show"));
+        }
         return false;
     }
     return true;
 }
 
+/***************************************************************************
+FUNCTIONS TO SEND DATA
+***************************************************************************/
+
+/**
+ * Add a value of variable to save
+ * @arg variable_label variable label to save in a struct
+ * @arg value variable value to save in a struct
+ * @arg ctext [optional] is the context that you will save, default
+ * @arg timestamp_val [optional] is the timestamp for the actual value
+ * is NULL
+ */
+void Ubidots::add(char *variable_label, double value) {
+  return add(variable_label, value, NULL, NULL);
+}
+
+void Ubidots::add(char *variable_label, double value, char *ctext) {
+  return add(variable_label, value, ctext, NULL);
+}
+
+void Ubidots::add(char *variable_label, double value, unsigned long timestamp_val) {
+  return add(variable_label, value, NULL, timestamp_val);
+}
+
+void Ubidots::add(char *variable_label, double value, char *ctext, long unsigned timestamp_val) {
+  (val+_currentValue)->varName = variable_label;
+  (val+_currentValue)->varValue = value;
+  (val+_currentValue)->ctext = ctext;
+  (val+_currentValue)->timestamp_val = timestamp_val;
+  _currentValue++;
+  if (_currentValue > MAX_VALUES) {
+        Serial.println(F("You are sending more than the maximum of consecutive variables"));
+        _currentValue = MAX_VALUES;
+  }
+}
+
+/**
+ * Send all data of all variables that you saved
+ * @reutrn true upon success, false upon error.
+ */
 bool Ubidots::sendAll() {
     int i;
-    String all;
-    String str;
-    all = USER_AGENT;
-    all += "/";
-    all += VERSION;
-    all += "|POST|";
-    all += _token;
-    all += "|";
-    all += _dsTag;
-    if (_dsName != NULL) {
-        all += ":";
-        all += _dsName;
+    char* allData = (char *) malloc(sizeof(char) * 700);
+    char str_values[10];
+
+    if (_device_name != NULL) {
+      sprintf(allData, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _device_label, _device_name);
+    } else {
+      sprintf(allData, "%s/%s|POST|%s|%s=>", USER_AGENT, VERSION, _token, _device_label);
     }
-    all += "=>";
-    for (i = 0; i < currentValue; ) {
-        str = String(((val + i)->varValue), 2);
-        all += String((val + i)->varName);
-        all += ":";
-        all += str;
+
+    for (i = 0; i < _currentValue; ) {
+        dtostrf(((val+i)->varValue), 6, 2, str_values);
+        sprintf(allData, "%s%s:%s", allData, (val + i)->varName, str_values);
+
+        if ((val + i)->timestamp_val != NULL) {
+            sprintf(allData, "%s@%lu%s", allData, (val + i)->timestamp_val, "000");
+        }
+
         if ((val + i)->ctext != NULL) {
-            all += "$";
-            all += String((val + i)->ctext);
+            sprintf(allData, "%s$%s", allData, (val + i)->ctext);
         }
+
         i++;
-        if (i >= currentValue) {
-            break;
-        } else {
-            all += ",";
+        if (i < _currentValue) {
+            sprintf(allData, "%s,", allData);
         }
     }
-    all += "|end";
-    Serial.println(all.c_str());
+    sprintf(allData, "%s|end", allData);
+    Serial.println(allData);
+
     fonaSS.println(F("AT+CIPMUX=0"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPMUX"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPMUX"));
+        }
+        _currentValue = 0;
         return false;
     }
     fonaSS.print(F("AT+CIPSTART=\"TCP\",\""));
@@ -238,70 +263,74 @@ bool Ubidots::sendAll() {
     fonaSS.print(PORT);
     fonaSS.println(F("\""));
     if (strstr(readData(4000), "CONNECT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSTART"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSTART"));
+        }
+        _currentValue = 0;
         return false;
     }
     fonaSS.print(F("AT+CIPSEND="));
-    fonaSS.println(all.length());
+    fonaSS.println(dataLen(allData));
     if (strstr(readData(4000), ">") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSEND"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSEND"));
+        }
+        _currentValue = 0;
         return false;
     }
-    fonaSS.write(all.c_str());
+    fonaSS.write(allData);
     if (strstr(readData(4000), "SEND OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error sending variables"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error sending variables"));
+        }
+        _currentValue = 0;
         return false;
     }
     fonaSS.println(F("AT+CIPCLOSE"));
     if (strstr(readData(4000), "CLOSE OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPCLOSE"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPCLOSE"));
+        }
+        _currentValue = 0;
         return false;
     }
     fonaSS.println(F("AT+CIPSHUT"));
     if (strstr(readData(4000), "SHUT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSHUT"));
-#endif
-        currentValue = 0;
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSHUT"));
+        }
+        _currentValue = 0;
         return false;
     }
-    currentValue = 0;
+    _currentValue = 0;
+    free(allData);
     return true;
 }
 
-float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
+/***************************************************************************
+FUNCTIONS TO RETRIEVE DATA
+***************************************************************************/
+
+/**
+ * This function is to get value from the Ubidots API with the device label
+ * and variable label
+ * @arg device_label is the label of the device
+ * @arg variable_label is the label of the variable
+ * @return num the data that you get from the Ubidots API
+ */
+float Ubidots::getValue(char* device_label, char* variable_label) {
+    char* serverResponse;
+    char* response;
     float num;
-    int i = 0;
-    String allData;
-    allData = USER_AGENT;
-    allData += "/";
-    allData += VERSION;
-    allData += "|LV|";
-    allData += _token;
-    allData += "|";
-    allData += dsTag;
-    allData += ":";
-    allData += idName;
-    allData += "|end";
-    String response;
-    uint8_t bodyPosinit;
+
+    char* allData = (char *) malloc(sizeof(char) * 700);
+    sprintf(allData, "%s/%s|LV|%s|%s:%s|end", USER_AGENT, VERSION, _token, device_label, variable_label);
+
     fonaSS.println(F("AT+CIPMUX=0"));
     if (strstr(readData(4000), "OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPMUX"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPMUX"));
+        }
         return false;
     }
     fonaSS.print(F("AT+CIPSTART=\"TCP\",\""));
@@ -310,41 +339,52 @@ float Ubidots::getValueWithDatasource(char* dsTag, char* idName) {
     fonaSS.print(PORT);
     fonaSS.println(F("\""));
     if (strstr(readData(4000), "CONNECT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSTART"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSTART"));
+        }
         return false;
     }
     fonaSS.print(F("AT+CIPSEND="));
-    fonaSS.println(allData.length());
+    fonaSS.println(dataLen(allData));
     if (strstr(readData(4000), ">") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSEND"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSEND"));
+        }
         return false;
     }
     fonaSS.println(allData);
-    response = String(readData(4000));
-    Serial.println(response);
+    char* resp = readData(4000);
+    response = strtok(resp, "|");
+    serverResponse = response;
+    while (response!=NULL) {
+        if (_debug) {
+            printf("%s\n", response);
+        }
+        response = strtok(NULL, "|");
+        if (response != NULL) {
+            serverResponse = response;
+        }
+    }
+    num = atof(serverResponse);
+
     fonaSS.println(F("AT+CIPCLOSE"));
     if (strstr(readData(4000), "CLOSE OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error sending data"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error sending data"));
+        }
         return false;
     }
     fonaSS.println(F("AT+CIPSHUT"));
     if (strstr(readData(4000), "SHUT OK") == NULL) {
-#ifdef DEBUG_UBIDOTS
-        Serial.println(F("Error with AT+CIPSHUT"));
-#endif
+        if (_debug) {
+            Serial.println(F("Error with AT+CIPSHUT"));
+        }
         return false;
     }
-    bodyPosinit = 3 + response.indexOf("OK|");
-    response = response.substring(bodyPosinit);
-    num = response.toFloat();
+    free(allData);
     return num;
 }
+
 int Ubidots::readLine(uint32_t ts_max, bool multiline) {
     int replyidx = 0;
     while (ts_max--) {
@@ -376,14 +416,57 @@ int Ubidots::readLine(uint32_t ts_max, bool multiline) {
 }
 
 
+/***************************************************************************
+AUXILIAR FUNCTIONS
+***************************************************************************/
+
+/**
+ * Assigns a new device name
+ * @arg device_name new name that you want to assign to your device
+ */
+void Ubidots::setDeviceName(char* device_name) {
+    _device_name = device_name;
+}
+
+/**
+ * Assigns a new device label
+ * @arg device_label new label that you want to assign to your device
+ */
+void Ubidots::setDeviceLabel(char* device_label) {
+    _device_label = device_label;
+}
+
+/**
+ * Gets the length of a variable
+ * @arg variable a variable of type char
+ * @return dataLen the length of the variable
+ */
+int Ubidots::dataLen(char* variable) {
+  uint8_t dataLen = 0;
+  for (int i = 0; i <= 250; i++) {
+    if (variable[i] != '\0') {
+      dataLen++;
+    } else {
+      break;
+    }
+  }
+  return dataLen;
+}
+
+/**
+ * Turns on or off debug messages
+ * @debug is a bool flag to activate or deactivate messages
+ */
+void Ubidots::setDebug(bool debug) {
+  _debug = debug;
+}
 // ------------------------------------------------------------------
 // -------------------------WARNING----------------------------------
 // ------------------------------------------------------------------
+
 /* Deprecated functions
 * Next functions was deprecated at version 1.2 of Fona Library
 */
-
-
 void Ubidots::gprsOnFona() {
     checkFona();
     setApn(_apn, _user, _pwd);
@@ -438,9 +521,9 @@ char* Ubidots::readData(uint16_t timeout) {
         }
     }
     replybuffer[replyidx] = '\0';  // null term
-#ifdef DEBUG_UBIDOTS
-    Serial.println("Response of FONA:");
-    Serial.println(replybuffer);
-#endif
+    if (_debug) {
+        Serial.println("Response of FONA:");
+        Serial.println(replybuffer);
+    }
     return replybuffer;
 }
