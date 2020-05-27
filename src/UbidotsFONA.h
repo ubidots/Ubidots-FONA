@@ -36,7 +36,7 @@ Modified and Maintened by: María Carlina Hernández ---- Developer at Ubidots I
 #define FONA_RX 2
 #define FONA_TX 3
 #define FONA_RST 4
-#define SERVER "translate.ubidots.com"
+#define SERVER "industrial.api.ubidots.com"
 #define PORT "9012"
 #define USER_AGENT "FONA"
 #define VERSION "3.0"
